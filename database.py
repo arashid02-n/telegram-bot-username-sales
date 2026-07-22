@@ -78,17 +78,16 @@ def save_or_update_bid(
     conn.close()
 
 
-def get_user_bid(buyer_chat_id: int):
-    """Returns the most recent bid for a user."""
+def get_user_bid(bot_username: str, buyer_chat_id: int):
+    """Returns the most recent bid for a user on a SPECIFIC bot."""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # We select timestamp here now
     cursor.execute('''
         SELECT bid_amount, contact_info, timestamp 
         FROM bids 
-        WHERE buyer_chat_id = ? 
+        WHERE bot_username = ? AND buyer_chat_id = ? 
         ORDER BY timestamp DESC LIMIT 1
-    ''', (buyer_chat_id,))
+    ''', (bot_username, buyer_chat_id))
     
     result = cursor.fetchone()
     conn.close()

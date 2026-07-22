@@ -39,12 +39,12 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-ADMIN_CHAT_IDS_RAW = os.getenv("ADMIN_CHAT_IDS", "")
-ADMIN_CHAT_IDS = []
-for x in ADMIN_CHAT_IDS_RAW.split(","):
-    clean_id = x.strip()
-    if clean_id.isdigit() or (clean_id.startswith("-") and clean_id[1:].isdigit()):
-        ADMIN_CHAT_IDS.append(int(clean_id))
+GROUP_CHAT_ID_RAW = os.getenv("GROUP_CHAT_ID", "")
+# Handle standard IDs and Group IDs (which start with '-')
+if GROUP_CHAT_ID_RAW.lstrip('-').isdigit():
+    GROUP_CHAT_ID = int(GROUP_CHAT_ID_RAW)
+else:
+    GROUP_CHAT_ID = None
 BOT_TOKENS_RAW = os.getenv("BOT_TOKENS", "")
 
 PORTFOLIO_IDS = []
@@ -194,8 +194,8 @@ async def finalize_and_notify(bot, user, bid_amount, contact_info):
         formatted_contact = f"<code>{contact_info}</code>"
 
     # 2. Notify Admins using your robust logging
-    if ADMIN_CHAT_IDS:
-        logger.info("Attempting to notify Admin IDs: %s", ADMIN_CHAT_IDS)
+    if GROUP_CHAT_ID:
+        logger.info("Attempting to notify Group Chat: %s", GROUP_CHAT_ID)
         alert_text = (
             "📩 <b>New/Updated Bid Received</b>\n\n"
             f"<b>Bot:</b> @{bot_user.username}\n"
@@ -203,18 +203,19 @@ async def finalize_and_notify(bot, user, bid_amount, contact_info):
             f"<b>Bid:</b> ${bid_amount:,.2f}\n"
             f"<b>Contact:</b> {formatted_contact}"
         )
-        # (Inside finalize_and_notify)
-        for admin_id in ADMIN_CHAT_IDS:
-            try:
-                # ADDED: reply_markup=admin_chat_keyboard(user.id)
-                await bot.send_message(chat_id=admin_id, text=alert_text, reply_markup=admin_chat_keyboard(user.id, show_history=False))
-                logger.info("Successfully sent notification to admin: %s", admin_id)
-            except Exception as exc:  # noqa: BLE001
-                logger.warning("Failed to notify admin %s: %s", admin_id, exc)
+        try:
+            await bot.send_message(
+                chat_id=GROUP_CHAT_ID, 
+                text=alert_text, 
+                reply_markup=admin_chat_keyboard(user.id, show_history=False)
+            )
+            logger.info("Successfully sent notification to group.")
+        except Exception as exc: 
+            logger.warning("Failed to notify group %s: %s", GROUP_CHAT_ID, exc)
     else:
-        logger.warning("No Admin IDs configured to receive notifications!")
+        logger.warning("No GROUP_CHAT_ID configured to receive notifications!")
 
-@router.message(CommandStart())
+@router.message(CommandStart(), F.chat.type == "private")
 async def cmd_start(message: Message, state: FSMContext) -> None:
     await state.clear()
     bot_username = (await message.bot.get_me()).username
@@ -226,11 +227,11 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
         )
     await message.answer(text, reply_markup=main_keyboard())
 
-@router.message(Command("my_bid"))
+@router.message(Command("my_bid"), F.chat.type == "private")
 async def cmd_my_bid(message: Message, state: FSMContext) -> None:
     await state.clear()
     bot_username = (await message.bot.get_me()).username
-    past_bid = get_user_bid(message.from_user.id)
+    past_bid = get_user_bid(bot_username, message.from_user.id)
     
     if past_bid:
         amount, contact, timestamp = past_bid
@@ -258,7 +259,7 @@ async def cmd_my_bid(message: Message, state: FSMContext) -> None:
             reply_markup=main_keyboard(source="nobid")
         )
 
-@router.message(Command("about"))
+@router.message(Command("about"), F.chat.type == "private")
 async def cmd_about(message: Message, state: FSMContext) -> None:
     await state.clear()
     bot_username = (await message.bot.get_me()).username
@@ -274,7 +275,7 @@ async def cmd_about(message: Message, state: FSMContext) -> None:
     
     await message.answer(text)
 
-@router.message(Command("support"))
+@router.message(Command("support"), F.chat.type == "private")
 async def cmd_support(message: Message, state: FSMContext) -> None:
     """Provides contact info for the broker."""
     await state.clear()
@@ -338,7 +339,7 @@ async def cb_back_routing(callback: CallbackQuery) -> None:
         text = "You haven't made an offer yet! 🚀\n\nTap below to get started."
         markup = main_keyboard(source="nobid")
     else:
-        past_bid = get_user_bid(callback.from_user.id)
+        past_bid = get_user_bid(bot_user.username, callback.from_user.id)
         if not past_bid:
             text = f"Welcome! 🚀\n\nThe asset <b>@{bot_user.username}</b> is currently accepting offers."
             markup = main_keyboard(source="start")
@@ -420,15 +421,13 @@ async def cb_make_offer(callback: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(BidStates.waiting_for_bid)
     await callback.answer()
 
-@router.message(BidStates.waiting_for_bid)
+@router.message(BidStates.waiting_for_bid, F.chat.type == "private")
 async def process_bid_amount(message: Message, state: FSMContext) -> None:
     raw = (message.text or "").strip().replace("$", "").replace(",", "")
 
-    # 1. Try to convert the input to a float instead of using .isdigit()
     try:
         bid_amount = float(raw)
         if bid_amount < 0:
-            # Prevent negative bids
             raise ValueError
     except ValueError:
         await message.answer(
@@ -436,85 +435,63 @@ async def process_bid_amount(message: Message, state: FSMContext) -> None:
         )
         return
 
-    await state.update_data(bid_amount=bid_amount)
-    
-    # 2. Smart Contact Info Query
-    past_bid = get_user_bid(message.from_user.id)
-    
+    # Add the bot_username fetch, then change the call:
+    bot_username = (await message.bot.get_me()).username
+    past_bid = get_user_bid(bot_username, message.from_user.id)
     if past_bid:
         _, existing_contact, _ = past_bid
-        if not existing_contact or existing_contact == "Skipped (Telegram Only)":
-            text = (
-                "Great, got your offer! 🎯\n\n"
-                "You haven't provided contact info yet.\n"
-                "If you would prefer faster contact, please share your\n<b>cell phone number</b>\nOR\n<b>email address</b>.\n\n"
-                "<i>(Otherwise, just press the Skip button below.)</i>"
-            )
-        else:
-            text = (
-                "Great, got your offer! 🎯\n\n"
-                f"Your current contact info is:\n<code>{existing_contact}</code>\n\n"
-                "If you want to replace this info, please type your new email or phone number.\n"
-                "Otherwise, press the 'Skip' button to keep your existing contact info."
-            )
+        contact_info = existing_contact if existing_contact else "Skipped (Telegram Only)"
     else:
-        text = (
-            "Great, got your offer! 🎯\n\n"
-            "Our broker will reach out to you using your Telegram ID.\n"
-            "If you would prefer faster contact, please share your\n<b>cell phone number</b>\nOR\n<b>email address</b>.\n\n"
-            "<i>(Otherwise, just press the Skip button below.)</i>"
-        )
-        
-    await message.answer(text, reply_markup=skip_inline_keyboard())
-    await state.set_state(BidStates.waiting_for_contact)
+        contact_info = "Skipped (Telegram Only)"
 
+    # 2. INSTANTLY REGISTER THE BID RIGHT HERE
+    await finalize_and_notify(message.bot, message.from_user, bid_amount, contact_info)
+
+    # 3. Prompt them optionally for email/phone, letting them know it's already saved
+    text = (
+        "✅ <b>Offer Registered Successfully!</b> 🎯\n\n"
+        f"Amount: <b>${bid_amount:,.2f}</b>\n"
+        "Your offer has been sent to the broker.\n\n"
+        "📞 <i>Optional:</i> If you want to provide a <b>phone number</b> or <b>email address</b> for faster contact, simply type it now.\n"
+        "<i>(Otherwise, you can ignore this or use the menu below.)</i>"
+    )
+    
+    # We keep them in the state briefly just in case they type an email/phone next
+    await state.update_data(bid_amount=bid_amount)
+    await state.set_state(BidStates.waiting_for_contact)
+    
+    await message.answer(text)
 
 # 1. Catches the user typing an email or phone number
-@router.message(BidStates.waiting_for_contact)
+@router.message(BidStates.waiting_for_contact, F.chat.type == "private")
 async def process_contact_text(message: Message, state: FSMContext) -> None:
     contact_info = message.text.strip()
     
-    # Validation
+    # Validation for email or phone
     is_email = re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", contact_info)
     clean_phone = re.sub(r"[\s\-\(\)\+]", "", contact_info)
     is_phone = clean_phone.isdigit() and 7 <= len(clean_phone) <= 15
 
     if not is_email and not is_phone:
-        await message.answer(
-            "⚠️ That doesn't look like a valid email or phone number.\n\n"
-            "Please enter a valid format, or press '⏭️ Skip'.",
-            reply_markup=skip_inline_keyboard()
-        )
+        # If they typed random text or clicked a command instead of an email/phone,
+        # clear the state and let the main router handle their new message/command naturally.
+        await state.clear()
+        
+        # Manually re-trigger the router for their message so they aren't blocked
+        if message.text.startswith("/"):
+            return # Let command handlers catch it
+            
+        await message.answer("✅ Your offer remains active on Telegram. Let us know if you need anything else from the menu!")
         return
 
+    # If it IS a valid email/phone, update the existing bid with the new contact info
     data = await state.get_data()
-    await finalize_and_notify(message.bot, message.from_user, data.get("bid_amount"), contact_info)
+    bid_amount = data.get("bid_amount")
     
-    await message.answer("✅ Thank you! Your offer has been recorded and forwarded to the broker.")
+    await finalize_and_notify(message.bot, message.from_user, bid_amount, contact_info)
+    
+    await message.answer("✅ <b>Contact info updated successfully!</b> The broker has been notified with your new details.")
     await state.clear()
-
-# 2. Catches the user pressing the Inline "Skip" button
-@router.callback_query(BidStates.waiting_for_contact, F.data == "skip_contact")
-async def process_contact_skip(callback: CallbackQuery, state: FSMContext) -> None:
-    # Remove the skip button so they can't click it twice
-    await callback.message.edit_reply_markup(reply_markup=None) 
-    
-    data = await state.get_data()
-    
-    # Fetch past bid to see if they already have valid contact details
-    past_bid = get_user_bid(callback.from_user.id)
-    if past_bid:
-        _, existing_contact, _ = past_bid
-        # Keep existing contact details if found, otherwise default to Skipped
-        contact_info = existing_contact if existing_contact else "Skipped (Telegram Only)"
-    else:
-        contact_info = "Skipped (Telegram Only)"
-        
-    await finalize_and_notify(callback.bot, callback.from_user, data.get("bid_amount"), contact_info)
-    
-    await callback.message.answer("✅ Thank you! Your offer has been recorded and forwarded to the broker.")
-    await state.clear()
-    await callback.answer()
 
 
 @router.callback_query(F.data == "asset_info_existing")
@@ -540,7 +517,9 @@ async def cb_asset_info_existing(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "back_to_existing")
 async def cb_back_to_existing(callback: CallbackQuery) -> None:
     """Takes the existing bidder back to their custom bid preview instead of start."""
-    past_bid = get_user_bid(callback.from_user.id)
+    # Add the bot_username fetch, then change the call:
+    bot_username = (await callback.bot.get_me()).username
+    past_bid = get_user_bid(bot_username, callback.from_user.id)
     if past_bid:
         amount, contact, timestamp = past_bid
         text = (
@@ -589,7 +568,7 @@ def format_history_text(history, is_admin: bool = False) -> str:
         else:
             name = "👤 <b>Buyer</b>" if is_admin else "👤 <b>You</b>"
             # Standard text for the buyer
-            lines.append(f"{name} <i>({time_str})</i>:\n{text}")
+            lines.append(f"{name} <i>({time_str})</i>:\n<blockquote>{text}</blockquote>")
             
     full_text = "\n\n".join(lines)
     
@@ -608,11 +587,15 @@ def format_history_text(history, is_admin: bool = False) -> str:
 @router.callback_query(F.data.startswith("admin_reply_"))
 async def cb_admin_initiate_reply(callback: CallbackQuery, state: FSMContext) -> None:
     buyer_chat_id = int(callback.data.split("_")[2])
+    buyer_name = get_buyer_username(buyer_chat_id)
     
     _, has_history, unlock_state = get_current_keyboard_state(callback.message.reply_markup)
     try:
-        # Removes the reply button but keeps history and unlock button visible
-        await callback.message.edit_reply_markup(reply_markup=admin_chat_keyboard(buyer_chat_id, show_reply=False, show_history=has_history, unlock_state=unlock_state))
+        await callback.message.edit_reply_markup(
+            reply_markup=admin_chat_keyboard(
+                buyer_chat_id, show_reply=False, show_history=has_history, unlock_state=unlock_state
+            )
+        )
     except TelegramBadRequest:
         pass
 
@@ -620,7 +603,7 @@ async def cb_admin_initiate_reply(callback: CallbackQuery, state: FSMContext) ->
     await state.set_state(ChatStates.waiting_for_admin_reply)
     
     text = (
-        f"📝 <b>Broker Communication Channel</b> (Buyer ID: <code>{buyer_chat_id}</code>)\n\n"
+        f"📝 <b>Broker Communication Channel</b> ({buyer_name})\n\n"
         "⚠️ Please send your entire response in a single message. "
         "This secure session will close automatically upon transmission."
     )
@@ -633,8 +616,8 @@ async def process_admin_reply(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
     buyer_chat_id = data.get("target_buyer_id")
     bot_username = (await message.bot.get_me()).username
+    buyer_name = get_buyer_username(buyer_chat_id)
     
-    # Save to history & forward to buyer
     save_chat_message(bot_username, buyer_chat_id, "admin", message.text)
     
     formatted_msg = (
@@ -643,31 +626,32 @@ async def process_admin_reply(message: Message, state: FSMContext) -> None:
     )
     
     try:
-        # We ensure chat_id and text are explicitly included here!
         await message.bot.send_message(
             chat_id=buyer_chat_id, 
             text=formatted_msg, 
             reply_markup=buyer_chat_keyboard(show_reply=True, show_history=True)
         )
         
-        # Admin gets a plain confirmation with NO buttons. State ends.
-        await message.answer("✅ <i>Message successfully delivered to the buyer. The reply session is now closed.</i>")
+        await message.answer(
+            f"✅ <i>Message successfully delivered to buyer {buyer_name}. The reply session is now closed.</i>"
+        )
     except Exception as exc:
         await message.answer(f"❌ <i>Delivery failed: {exc}</i>")
         
     await state.clear()
 
 # 3. Buyer presses "Reply to Broker"
+# 3. Buyer presses "Reply to Broker"
 @router.callback_query(F.data == "buyer_reply")
 async def cb_buyer_initiate_reply(callback: CallbackQuery, state: FSMContext) -> None:
-    # We add an extra '_' here to catch the 3rd variable (unlock_state)
     _, has_history, _ = get_current_keyboard_state(callback.message.reply_markup)
-    try:
-        await callback.message.edit_reply_markup(reply_markup=buyer_chat_keyboard(show_reply=False, show_history=has_history))
-    except TelegramBadRequest:
-        pass
 
-    # Enter state and prompt for message
+    # Save the prompt message ID and history state into FSM data
+    # (We DO NOT edit or hide the reply button here!)
+    await state.update_data(
+        prompt_msg_id=callback.message.message_id, 
+        has_history=has_history
+    )
     await state.set_state(ChatStates.waiting_for_buyer_reply)
     
     text = (
@@ -679,49 +663,66 @@ async def cb_buyer_initiate_reply(callback: CallbackQuery, state: FSMContext) ->
     await callback.answer()
 
 # 4. Buyer types their message
-@router.message(ChatStates.waiting_for_buyer_reply)
+@router.message(ChatStates.waiting_for_buyer_reply, F.chat.type == "private")
 async def process_buyer_reply(message: Message, state: FSMContext) -> None:
+    data = await state.get_data()
+    prompt_msg_id = data.get("prompt_msg_id")
+    has_history = data.get("has_history", True)
+    
     bot_username = (await message.bot.get_me()).username
     buyer_chat_id = message.from_user.id
     
-    # Save message to DB
     save_chat_message(bot_username, buyer_chat_id, "buyer", message.text)
     
-    # Fetch their current offer
-    offer_amount = get_buyer_offer(bot_username, buyer_chat_id)
-    
-    # Create a natively clickable username, or fallback to an HTML profile link
+    # 1. Fetch & format offer amount into currency ($1,111.00)
+    raw_offer = get_buyer_offer(bot_username, buyer_chat_id)
+    try:
+        formatted_offer = f"${float(raw_offer):,.2f}"
+    except (ValueError, TypeError):
+        formatted_offer = raw_offer
+
     if message.from_user.username:
         buyer_link = f"@{message.from_user.username}"
     else:
         buyer_link = f"<a href='tg://user?id={buyer_chat_id}'>{message.from_user.first_name}</a>"
 
+    # 2. Formatted alert with bot username mention
     admin_alert = (
         f"💬 <b>Reply from Buyer:</b> {buyer_link}\n"
-        f"💰 <b>Current Offer:</b> {offer_amount}\n\n"
+        f"💰 <b>Current Offer:</b> {formatted_offer} for @{bot_username}\n\n"
         f"{message.text}"
     )
 
-    if ADMIN_CHAT_IDS:
-        for admin_id in ADMIN_CHAT_IDS:
-            try:
-                await message.bot.send_message(
-                    chat_id=admin_id, 
-                    text=admin_alert, 
-                    reply_markup=admin_chat_keyboard(
-                        buyer_chat_id, 
-                        show_reply=True, 
-                        show_history=True, 
-                        unlock_state="show"
-                    )
+    if GROUP_CHAT_ID:
+        try:
+            await message.bot.send_message(
+                chat_id=GROUP_CHAT_ID, 
+                text=admin_alert, 
+                reply_markup=admin_chat_keyboard(
+                    buyer_chat_id, 
+                    show_reply=True, 
+                    show_history=True, 
+                    unlock_state="show"
                 )
-            except Exception:
-                pass
+            )
+        except Exception as exc:
+            logger.warning("Failed to forward buyer reply to group: %s", exc)
+
+    if prompt_msg_id:
+        try:
+            await message.bot.edit_message_reply_markup(
+                chat_id=buyer_chat_id,
+                message_id=prompt_msg_id,
+                reply_markup=buyer_chat_keyboard(show_reply=False, show_history=has_history)
+            )
+        except Exception:
+            pass
 
     await message.answer(
         "✅ <i>Your message has been delivered to the broker.</i>",
         reply_markup=buyer_chat_keyboard(show_reply=False, show_history=True)
     )
+
     await state.clear()
 
 # 5. View Chat History Handlers
@@ -845,14 +846,14 @@ async def setup_bot_commands(bot: Bot):
     ]
     await bot.set_my_commands(bot_commands)
 
-@router.message()
+@router.message(F.chat.type == "private")
 async def catch_all_messages(message: Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     if current_state is not None:
         return 
 
     bot_username = (await message.bot.get_me()).username
-    past_bid = get_user_bid(message.from_user.id)
+    past_bid = get_user_bid(bot_username, message.from_user.id)
     
     if past_bid:
         amount, contact, timestamp = past_bid
@@ -892,7 +893,16 @@ async def run_bots() -> None:
         logger.error("BOT_TOKENS is not set in .env")
         sys.exit(1)
 
-    tokens = [t.strip() for t in BOT_TOKENS_RAW.split(",") if t.strip()]
+    # Normalize newlines into commas so it never trips over multiline formatting
+    normalized_tokens = BOT_TOKENS_RAW.replace("\n", ",")
+    
+    tokens = []
+    for item in normalized_tokens.split(","):
+        # Strip inline comments (#), whitespace, and stray quotes
+        clean_token = item.split("#")[0].strip().strip('"').strip("'")
+        if clean_token:
+            tokens.append(clean_token)
+
     if not tokens:
         logger.error("No valid bot tokens found in BOT_TOKENS")
         sys.exit(1)
@@ -921,6 +931,7 @@ async def run_bots() -> None:
         try:
             await bot.delete_webhook(drop_pending_updates=True)
             # await setup_bot_commands(bot) # <-- If you have your command menu setup here
+            await setup_bot_commands(bot)
             logger.info("Successfully cleared webhook for bot.")
         except Exception as exc:
             logger.warning("Could not clear webhook: %s", exc)
