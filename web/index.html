@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <title>Buy Telegram Bots</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- TOP NAVIGATION -->
+  <header>
+    <div class="container nav-wrapper">
+      <a href="#" class="brand-logo">
+        <span>✈️</span>BuyTelegramBots.com
+      </a>
+    </div>
+  </header>
+
+  <!-- HERO SECTION (Now placed outside of <main> to prevent double padding) -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <span class="badge-pill">⚡ Verified & Automated Marketplace</span>
+      
+      <h1 class="hero-title">
+        Acquire Premium Digital Assets with <span class="highlight">Zero Friction</span>.
+      </h1>
+      
+      <p class="hero-subtitle">
+        Browse & Buy verified, high-value usernames and channels for yourself and for your business.
+      </p>
+      
+      <div class="cta-group">
+        <a href="#inventory" class="btn btn-primary">Browse Available Assets</a>
+        <a href="#how-it-works" type="button" class="btn btn-secondary" onclick="openGuideModal()">How Does It Work?</a>
+      </div>
+      
+      <div class="trust-bar">
+        <div class="trust-item">🔒 Instant Automated Transfer</div>
+        <div class="trust-item">🛡️ 100% Secure</div>
+        <div class="trust-item">✓ Verified Ownership</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="container">
+
+    <!-- ASSET SHOWCASE & INVENTORY GRID -->
+
+    <!-- ASSET SHOWCASE & INVENTORY GRID -->
+    <section id="inventory" class="inventory-section">
+    
+        <div class="section-header">
+            <h2 class="section-title">Available Bot Usernames</h2>
+            <p class="section-subtitle">Select a handle to make an offer. Transfers are completed natively via @BotFather.</p>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All Assets</button>
+            <button class="filter-btn" data-filter="Travel">Travel</button>
+            <button class="filter-btn" data-filter="Finance & Crypto">Finance & Crypto</button>
+            <button class="filter-btn" data-filter="AI & Automation">AI & Automation</button>
+            <button class="filter-btn" data-filter="Utilities">Utilities</button>
+        </div>
+
+        <!-- Responsive Card Grid (Cards dynamically loaded via script.js) -->
+        <div class="asset-grid" id="assetGrid"></div>
+        <!-- After a username is sold, in the "bots.json" file >> status: "Sold", status_code: "pending" -->
+    </section>
+
+  </main>
+
+  <!-- HOW IT WORKS GUIDE MODAL -->
+  <dialog id="guideModal" class="modal-box">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <h3>How to Use <span class="highlight-blue">BuyTelegramBots.com</span></h3>
+        <button type="button" class="close-btn" onclick="closeGuideModal()">×</button>
+      </div>
+      
+      <div class="guide-content">
+        <div class="guide-step">
+          <h4>1. Browse & Filter Assets</h4>
+          <p>Use the category filter buttons at the top (Travel, Finance, AI, etc.) to explore our curated catalog of verified Telegram usernames and bots.</p>
+        </div>
+        <div class="guide-step">
+          <h4>2. Review Valuations & Status</h4>
+          <p>Each card displays an estimated market valuation and real-time status. Active badges mean the handle is ready for immediate transfer.</p>
+        </div>
+        <div class="guide-step">
+          <h4>3. Choose Your Bidding Method</h4>
+          <p>Click "Make Offer on Telegram" to chat directly with our live brokers, or use "or submit via Web Form" to send a formal bid right from this page.</p>
+        </div>
+        <div class="guide-step">
+          <h4>4. Automated & Secure Escrow</h4>
+          <p>Once your offer is accepted, we initiate a guaranteed, zero-friction transfer directly to your Telegram account via @BotFather.</p>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" onclick="closeGuideModal()">Got It, Let's Explore</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- WEB FORM MODAL -->
+  <dialog id="offerModal" class="modal-box">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <h3>Submit Offer for <span id="targetBotDisplay" class="highlight-blue">@Bot</span></h3>
+        <button type="button" class="close-btn" onclick="closeOfferModal()">×</button>
+      </div>
+      
+      <p class="modal-instructions">
+        Don't have Telegram installed? Submit your bid and contact info below. Our broker will reach out via email or WhatsApp.
+      </p>
+
+      <form id="offerForm" onsubmit="handleFormSubmit(event)">
+        <!-- Hidden input to store which bot they clicked -->
+        <input type="hidden" id="targetBotInput" name="bot_username" value="" />
+
+        <div class="form-group">
+          <label for="buyerName">Your Name or Organization</label>
+          <input type="text" id="buyerName" name="name" required placeholder="e.g., Alex Mercer" />
+        </div>
+
+        <div class="form-group">
+          <label for="buyerContact">Email, WhatsApp, or Telegram Handle</label>
+          <input 
+            type="text" 
+            id="buyerContact" 
+            name="contact" 
+            required 
+            placeholder="@username, name@mail.com, or +31 6 12345678"
+            pattern="^(@[A-Za-z0-9_]{3,32}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?[0-9\s()-]{7,20})$"
+            title="Must be a Telegram handle starting with '@', a valid email address, or a phone number."
+          />
+          <span class="error-msg">Enter a valid Telegram handle (@username), email, or phone number.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="bidAmount">Offer Amount (USD / USDT)</label>
+          <!-- min="100" prevents negative numbers and sets a minimum realistic bid! -->
+          <input 
+            type="number" 
+            id="bidAmount" 
+            name="bid" 
+            required 
+            placeholder="e.g., 1500" 
+            min="100" 
+            step="1"
+            title="Offers must be a positive number of at least $100."
+          />
+          <span class="error-msg">Bid must be a positive amount (Minimum $100).</span>
+        </div>
+
+        <div class="form-group">
+          <label for="buyerNotes">Additional Notes (Optional)</label>
+          <textarea id="buyerNotes" name="notes" rows="3" placeholder="Any specific terms or questions?"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeOfferModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Offer</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p>© 2026 BuyTelegramBots.com — All rights reserved. Native transfer via @BotFather.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
