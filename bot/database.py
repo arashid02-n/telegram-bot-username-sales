@@ -115,7 +115,12 @@ def get_buyer_username(buyer_chat_id: int) -> str:
     cursor.execute("SELECT buyer_username FROM bids WHERE buyer_chat_id = ? ORDER BY id DESC LIMIT 1", (buyer_chat_id,))
     res = cursor.fetchone()
     conn.close()
-    return f"@{res[0]}" if res and res[0] else f"ID {buyer_chat_id}"
+    
+    # If the user has a real username, format it with @
+    if res and res[0] and res[0] != "N/A":
+        return f"@{res[0]}"
+    
+    return f"ID {buyer_chat_id}"
 
 
 
