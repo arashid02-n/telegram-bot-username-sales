@@ -11,6 +11,7 @@ from aiogram.types import (
 
 from dotenv import load_dotenv
 
+from aiogram.filters import BaseFilter
 from aiogram.exceptions import TelegramNetworkError, TelegramBadRequest
 from aiogram import Bot, Dispatcher, Router, F
 from aiogram.client.default import DefaultBotProperties
@@ -30,9 +31,11 @@ from aiogram.types import (
 from aiogram.types import BotCommand
 from aiogram.filters import Command
 
-from database import init_db, save_or_update_bid, get_user_bid, save_chat_message, get_chat_history, is_bid_locked
-from database import get_buyer_username, unlock_bid
-from database import get_buyer_offer
+from database import init_db, save_or_update_bid, get_user_bid, get_buyer_username, get_buyer_offer
+from database import (
+    start_negotiation, get_active_topic_for_buyer, 
+    get_buyer_for_topic, close_negotiation
+)
 
 load_dotenv()
 
@@ -50,10 +53,6 @@ BOT_TOKENS_RAW = os.getenv("BOT_TOKENS", "")
 PORTFOLIO_IDS = []
 
 router = Router()
-
-class ChatStates(StatesGroup):
-    waiting_for_buyer_reply = State()
-    waiting_for_admin_reply = State()
 
 class BidStates(StatesGroup):
     waiting_for_bid = State()
@@ -112,60 +111,13 @@ def asset_info_existing_keyboard(source: str) -> InlineKeyboardMarkup:
         ]
     )
 
-def admin_chat_keyboard(buyer_chat_id: int, show_reply: bool = True, show_history: bool = True, unlock_state: str = "none") -> InlineKeyboardMarkup:
-    buttons = []
-    if show_reply:
-        buttons.append([InlineKeyboardButton(text="💬 Reply to Buyer", callback_data=f"admin_reply_{buyer_chat_id}")])
-    if show_history:
-        buttons.append([InlineKeyboardButton(text="📜 View Chat History", callback_data=f"admin_history_{buyer_chat_id}")])
-    
-    # The new Unlock Toggle System
-    if unlock_state == "show":
-        buttons.append([InlineKeyboardButton(text="🔓 Lift Offer Lock", callback_data=f"admin_unlock_{buyer_chat_id}")])
-    elif unlock_state == "confirm":
-        buttons.append([
-            InlineKeyboardButton(text="⚠️ Confirm Unlock", callback_data=f"admin_unlkconf_{buyer_chat_id}"),
-            InlineKeyboardButton(text="❌ Cancel", callback_data=f"admin_unlkcanc_{buyer_chat_id}")
-        ])
-        
-    return InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None
+def admin_chat_keyboard(buyer_chat_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="💬 Start Negotiation", callback_data=f"admin_negotiate_{buyer_chat_id}")]
+    ])
 
-def buyer_chat_keyboard(show_reply: bool = True, show_history: bool = True) -> InlineKeyboardMarkup:
-    buttons = []
-    if show_reply:
-        buttons.append([InlineKeyboardButton(text="💬 Reply to Broker", callback_data="buyer_reply")])
-    if show_history:
-        buttons.append([InlineKeyboardButton(text="📜 View Chat History", callback_data="buyer_history")])
-    return InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None
 
-def get_current_keyboard_state(reply_markup) -> tuple[bool, bool, str]:
-    """Reads the current message to see which buttons and unlock states are visible."""
-    has_reply = False
-    has_history = False
-    unlock_state = "none"
-    if reply_markup and reply_markup.inline_keyboard:
-        for row in reply_markup.inline_keyboard:
-            for btn in row:
-                if btn.callback_data:
-                    if "reply" in btn.callback_data:
-                        has_reply = True
-                    if "history" in btn.callback_data:
-                        has_history = True
-                    if "admin_unlock_" in btn.callback_data:
-                        unlock_state = "show"
-                    if "admin_unlkconf_" in btn.callback_data:
-                        unlock_state = "confirm"
-    return has_reply, has_history, unlock_state
-
-def locked_offer_keyboard(source: str) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="🌐 Explore Other IDs", callback_data=f"explore_ids:{source}")],
-            [InlineKeyboardButton(text="ℹ️ Asset Info", callback_data=f"asset_info:{source}")]
-        ]
-    )
-
-async def finalize_and_notify(bot, user, bid_amount, contact_info):
+async def finalize_and_notify(bot, user, bid_amount, contact_info, edit_msg_id=None):
     bot_user = await bot.get_me()
     buyer_username = user.username or "N/A"
     
@@ -203,17 +155,72 @@ async def finalize_and_notify(bot, user, bid_amount, contact_info):
             f"<b>Bid:</b> ${bid_amount:,.2f}\n"
             f"<b>Contact:</b> {formatted_contact}"
         )
+        
+        if edit_msg_id:
+            try:
+                await bot.edit_message_text(
+                    chat_id=GROUP_CHAT_ID,
+                    message_id=edit_msg_id,
+                    text=alert_text,
+                    reply_markup=admin_chat_keyboard(user.id)
+                )
+                return edit_msg_id
+            except Exception as exc:
+                logger.warning("Failed to edit existing admin alert, falling back to new message: %s", exc)
+        
         try:
-            await bot.send_message(
+            msg = await bot.send_message(
                 chat_id=GROUP_CHAT_ID, 
                 text=alert_text, 
-                reply_markup=admin_chat_keyboard(user.id, show_history=False)
+                reply_markup=admin_chat_keyboard(user.id)
             )
             logger.info("Successfully sent notification to group.")
+            return msg.message_id
         except Exception as exc: 
             logger.warning("Failed to notify group %s: %s", GROUP_CHAT_ID, exc)
     else:
         logger.warning("No GROUP_CHAT_ID configured to receive notifications!")
+
+class InLiveChatFilter(BaseFilter):
+    """Checks if a user is currently locked in a LIVE_CHAT state."""
+    async def __call__(self, message: Message) -> bool | dict:
+        bot_username = (await message.bot.get_me()).username
+        topic_id = get_active_topic_for_buyer(bot_username, message.from_user.id)
+        if topic_id:
+            return {"topic_id": topic_id} # Passes topic_id to the handler
+        return False
+
+@router.message(F.chat.type == "private", InLiveChatFilter())
+async def buyer_to_admin_proxy(message: Message, topic_id: int) -> None:
+    """Intercepts EVERYTHING from the buyer and copies it to the Admin Forum Topic."""
+    try:
+        await message.bot.copy_message(
+            chat_id=GROUP_CHAT_ID,
+            message_thread_id=topic_id,
+            from_chat_id=message.from_user.id,
+            message_id=message.message_id
+        )
+    except Exception as e:
+        logger.error("Failed to proxy buyer message to forum topic: %s", e)
+
+@router.message(F.chat.id == GROUP_CHAT_ID, F.message_thread_id)
+async def admin_to_buyer_proxy(message: Message) -> None:
+    """Listens to active Forum Topics and routes broker messages directly to the buyer's PM."""
+    if message.from_user.is_bot:
+        return # Ignore bot notifications
+
+    bot_username = (await message.bot.get_me()).username
+    buyer_chat_id = get_buyer_for_topic(bot_username, message.message_thread_id)
+
+    if buyer_chat_id:
+        try:
+            await message.bot.copy_message(
+                chat_id=buyer_chat_id,
+                from_chat_id=GROUP_CHAT_ID,
+                message_id=message.message_id
+            )
+        except Exception as e:
+            logger.error("Failed to proxy admin message to buyer: %s", e)
 
 @router.message(CommandStart(), F.chat.type == "private")
 async def cmd_start(message: Message, state: FSMContext) -> None:
@@ -235,24 +242,14 @@ async def cmd_my_bid(message: Message, state: FSMContext) -> None:
     
     if past_bid:
         amount, contact, timestamp = past_bid
-        if is_bid_locked(bot_username, message.from_user.id):
-            text = (
-                "🧾 <b>Your Current Offer (🔒 Locked)</b>\n\n"
-                f"💰 <b>Amount:</b> ${amount:,.2f}\n"
-                f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
-                f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
-                "Your offer is currently under active negotiation."
-            )
-            await message.answer(text, reply_markup=locked_offer_keyboard(source="mybid"))
-        else:
-            text = (
-                "🧾 <b>Your Current Offer</b>\n\n"
-                f"💰 <b>Amount:</b> ${amount:,.2f}\n"
-                f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
-                f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
-                "Would you like to modify your offer?"
-            )
-            await message.answer(text, reply_markup=change_offer_keyboard(source="mybid"))
+        text = (
+            "🧾 <b>Your Current Offer</b>\n\n"
+            f"💰 <b>Amount:</b> ${amount:,.2f}\n"
+            f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
+            f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
+            "Would you like to modify your offer?"
+        )
+        await message.answer(text, reply_markup=change_offer_keyboard(source="mybid"))
     else:
         await message.answer(
             "You haven't made an offer yet! 🚀\n\nTap below to get started.", 
@@ -295,9 +292,6 @@ async def cb_asset_info(callback: CallbackQuery) -> None:
     source = callback.data.split(":")[1]
     bot_username = (await callback.bot.get_me()).username
     
-    # 1. Check if the buyer is currently locked
-    locked = is_bid_locked(bot_username, callback.from_user.id)
-    
     text = (
         "ℹ️ <b>Asset Information</b>\n\n"
         f"<b>Username:</b> @{bot_username}\n"
@@ -308,11 +302,7 @@ async def cb_asset_info(callback: CallbackQuery) -> None:
     
     # 2. Build the keyboard dynamically
     buttons = []
-    if not locked:
-        # ONLY show this button if they are NOT locked. 
-        # (Change "make_offer" if your bot uses a different callback to start bids)
-        buttons.append([InlineKeyboardButton(text="💰 Make / Change Offer", callback_data="make_offer")])
-        
+    buttons.append([InlineKeyboardButton(text="💰 Make / Change Offer", callback_data="make_offer")])
     buttons.append([InlineKeyboardButton(text="🔙 Back", callback_data=f"back:{source}")])
     markup = InlineKeyboardMarkup(inline_keyboard=buttons)
     
@@ -340,48 +330,39 @@ async def cb_back_routing(callback: CallbackQuery) -> None:
         markup = main_keyboard(source="nobid")
     else:
         past_bid = get_user_bid(bot_user.username, callback.from_user.id)
+        
         if not past_bid:
             text = f"Welcome! 🚀\n\nThe asset <b>@{bot_user.username}</b> is currently accepting offers."
             markup = main_keyboard(source="start")
         else:
             amount, contact, timestamp = past_bid
-            locked = is_bid_locked(bot_user.username, callback.from_user.id)
             
-            if locked:
-                if source == "mybid":
-                    text = (
-                        "🧾 <b>Your Current Offer (🔒 Locked)</b>\n\n"
-                        f"💰 <b>Amount:</b> ${amount:,.2f}\n"
-                        f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
-                        f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
-                        "Your offer is currently under active negotiation."
-                    )
-                else: # catchall
-                    text = (
-                        "🔒 <b>Offer Locked</b>\n\n"
-                        "Your offer is currently under active negotiation with our broker. "
-                        "To send a message, please use the 'Reply to Broker' button attached to the chat history."
-                    )
-                markup = locked_offer_keyboard(source)
-            else:
-                if source == "mybid":
-                    text = (
-                        "🧾 <b>Your Current Offer</b>\n\n"
-                        f"💰 <b>Amount:</b> ${amount:,.2f}\n"
-                        f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
-                        f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
-                        "Would you like to modify your offer?"
-                    )
-                else: # catchall
-                    text = (
-                        "👋 Welcome back!\n\n"
-                        "We have your current offer on file:\n"
-                        f"💰 <b>Amount:</b> ${amount:,.2f}\n"
-                        f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
-                        f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
-                        "Would you like to modify your offer?"
-                    )
-                markup = change_offer_keyboard(source)
+            if source == "mybid":
+                text = (
+                    "🧾 <b>Your Current Offer</b>\n\n"
+                    f"💰 <b>Amount:</b> ${amount:,.2f}\n"
+                    f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
+                    f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
+                    "Would you like to modify your offer?"
+                )
+            elif source == "end_nego":
+                text = (
+                    "🔴 <b>Negotiation Closed</b>\n\n"
+                    "The broker has ended this live session. We still have your offer on file:\n\n"
+                    f"💰 <b>Amount:</b> ${amount:,.2f}\n"
+                    f"📞 <b>Contact on file:</b> <code>{contact}</code>\n\n"
+                    "Would you like to modify your offer?"
+                )
+            else: # catchall
+                text = (
+                    "👋 Welcome back!\n\n"
+                    "We have your current offer on file:\n"
+                    f"💰 <b>Amount:</b> ${amount:,.2f}\n"
+                    f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
+                    f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
+                    "Would you like to modify your offer?"
+                )
+            markup = change_offer_keyboard(source)
 
     try:
         await callback.message.edit_text(text, reply_markup=markup)
@@ -406,20 +387,93 @@ async def cb_back_to_main(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "make_offer")
 async def cb_make_offer(callback: CallbackQuery, state: FSMContext) -> None:
     bot_username = (await callback.bot.get_me()).username
-    
-    # 🔒 BID LOCK CHECK
-    if is_bid_locked(bot_username, callback.from_user.id):
-        await callback.message.answer(
-            "🔒 <b>Offer Locked</b>\n\n"
-            "Your offer is currently under active negotiation with our broker. "
-            "To discuss adjusting your offer, please reply directly in the chat."
-        )
-        await callback.answer()
-        return
-
     await callback.message.answer("Please type your offer as a numerical amount in USD (e.g. 750).")
     await state.set_state(BidStates.waiting_for_bid)
     await callback.answer()
+
+@router.callback_query(F.data.startswith("admin_negotiate_"))
+async def cb_start_negotiation(callback: CallbackQuery) -> None:
+    buyer_chat_id = int(callback.data.split("_")[2])
+    bot_username = (await callback.bot.get_me()).username
+    buyer_name = get_buyer_username(buyer_chat_id)
+
+    # Fetch and format the offer amount for the Topic Title
+    raw_offer = get_buyer_offer(bot_username, buyer_chat_id)
+    try:
+        offer_str = f"${float(raw_offer):,.0f}"
+    except (ValueError, TypeError):
+        offer_str = f"${raw_offer}"
+        
+    topic_name = f"{offer_str} - {buyer_name} - @{bot_username}"
+
+    try:
+        # 1. Create Forum Topic with new naming convention
+        topic = await callback.bot.create_forum_topic(
+            chat_id=GROUP_CHAT_ID,
+            name=topic_name
+        )
+        topic_id = topic.message_thread_id
+
+        # 2. Save State to SQLite
+        start_negotiation(bot_username, buyer_chat_id, topic_id)
+
+        # 3. Remove the "Start Negotiation" button from the original alert
+        await callback.message.edit_reply_markup(reply_markup=None)
+
+        # 4. Alert the Buyer
+        await callback.bot.send_message(
+            chat_id=buyer_chat_id,
+            text=f"🟢 <b>Live Chat Initiated</b>\n\nYou are now in a direct live chat with an admin regarding <b>@{bot_username}</b> Bot for {offer_str}.",
+            reply_markup=ReplyKeyboardRemove()
+        )
+
+        # 5. Pin End Negotiation Button in Topic
+        end_kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="❌ End Negotiation", callback_data=f"admin_endnego_{buyer_chat_id}")]
+        ])
+        
+        pin_msg = await callback.bot.send_message(
+            chat_id=GROUP_CHAT_ID,
+            message_thread_id=topic_id,
+            text=f"🔴 <b>LIVE CHAT ACTIVE</b> with {buyer_name} (ID: <code>{buyer_chat_id}</code>).\n\nAny message sent in this topic will be forwarded directly to the buyer's PM.",
+            reply_markup=end_kb
+        )
+        
+        await callback.bot.pin_chat_message(
+            chat_id=GROUP_CHAT_ID,
+            message_id=pin_msg.message_id
+        )
+
+        await callback.answer("Live Chat Topic Created & Locked!")
+    except Exception as e:
+        await callback.answer(f"Error creating topic: {e}", show_alert=True)
+        logger.error("Failed to create topic: %s", e)
+
+@router.callback_query(F.data.startswith("admin_endnego_"))
+async def cb_end_negotiation(callback: CallbackQuery) -> None:
+    buyer_chat_id = int(callback.data.split("_")[2])
+    bot_username = (await callback.bot.get_me()).username
+
+    # 1. Update SQLite Status
+    close_negotiation(bot_username, buyer_chat_id)
+
+    # 2. Close Forum Topic
+    try:
+        await callback.bot.close_forum_topic(
+            chat_id=GROUP_CHAT_ID,
+            message_thread_id=callback.message.message_thread_id
+        )
+    except Exception as e:
+        logger.error("Failed to close forum topic: %s", e)
+
+   # 3. Notify Buyer and Restore UI Menu
+    await callback.bot.send_message(
+        chat_id=buyer_chat_id,
+        text="🔴 <b>Negotiation Closed</b>\n\nThe broker has ended this live session. You may resume using the bot menus below.",
+        reply_markup=change_offer_keyboard(source="end_nego") # <-- Updated keyboard
+    )
+
+    await callback.answer("Topic closed. Buyer notified.")
 
 @router.message(BidStates.waiting_for_bid, F.chat.type == "private")
 async def process_bid_amount(message: Message, state: FSMContext) -> None:
@@ -430,12 +484,9 @@ async def process_bid_amount(message: Message, state: FSMContext) -> None:
         if bid_amount < 0:
             raise ValueError
     except ValueError:
-        await message.answer(
-            "⚠️ Please enter a valid numeric amount (e.g. 750 or 12.50)."
-        )
+        await message.answer("⚠️ Please enter a valid numeric amount (e.g. 750 or 12.50).")
         return
 
-    # Add the bot_username fetch, then change the call:
     bot_username = (await message.bot.get_me()).username
     past_bid = get_user_bid(bot_username, message.from_user.id)
     if past_bid:
@@ -444,10 +495,9 @@ async def process_bid_amount(message: Message, state: FSMContext) -> None:
     else:
         contact_info = "Skipped (Telegram Only)"
 
-    # 2. INSTANTLY REGISTER THE BID RIGHT HERE
-    await finalize_and_notify(message.bot, message.from_user, bid_amount, contact_info)
+    # Save the returned message_id from the first alert
+    alert_msg_id = await finalize_and_notify(message.bot, message.from_user, bid_amount, contact_info)
 
-    # 3. Prompt them optionally for email/phone, letting them know it's already saved
     text = (
         "✅ <b>Offer Registered Successfully!</b> 🎯\n\n"
         f"Amount: <b>${bid_amount:,.2f}</b>\n"
@@ -456,39 +506,34 @@ async def process_bid_amount(message: Message, state: FSMContext) -> None:
         "<i>(Otherwise, you can ignore this or use the menu below.)</i>"
     )
     
-    # We keep them in the state briefly just in case they type an email/phone next
-    await state.update_data(bid_amount=bid_amount)
+    # Store BOTH the bid amount and the alert message ID
+    await state.update_data(bid_amount=bid_amount, alert_msg_id=alert_msg_id)
     await state.set_state(BidStates.waiting_for_contact)
     
-    await message.answer(text)
+    await message.answer(text, reply_markup=change_offer_keyboard(source="start"))
 
 # 1. Catches the user typing an email or phone number
 @router.message(BidStates.waiting_for_contact, F.chat.type == "private")
 async def process_contact_text(message: Message, state: FSMContext) -> None:
     contact_info = message.text.strip()
     
-    # Validation for email or phone
     is_email = re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", contact_info)
     clean_phone = re.sub(r"[\s\-\(\)\+]", "", contact_info)
     is_phone = clean_phone.isdigit() and 7 <= len(clean_phone) <= 15
 
     if not is_email and not is_phone:
-        # If they typed random text or clicked a command instead of an email/phone,
-        # clear the state and let the main router handle their new message/command naturally.
         await state.clear()
-        
-        # Manually re-trigger the router for their message so they aren't blocked
         if message.text.startswith("/"):
-            return # Let command handlers catch it
-            
+            return 
         await message.answer("✅ Your offer remains active on Telegram. Let us know if you need anything else from the menu!")
         return
 
-    # If it IS a valid email/phone, update the existing bid with the new contact info
     data = await state.get_data()
     bid_amount = data.get("bid_amount")
+    alert_msg_id = data.get("alert_msg_id") # Retrieve the ID
     
-    await finalize_and_notify(message.bot, message.from_user, bid_amount, contact_info)
+    # Pass the edit_msg_id to update the existing alert in place
+    await finalize_and_notify(message.bot, message.from_user, bid_amount, contact_info, edit_msg_id=alert_msg_id)
     
     await message.answer("✅ <b>Contact info updated successfully!</b> The broker has been notified with your new details.")
     await state.clear()
@@ -548,220 +593,6 @@ async def cb_back_to_existing(callback: CallbackQuery) -> None:
             pass
     await callback.answer()
 
-# --- NEGOTIATION ENGINE HANDLERS ---
-
-def format_history_text(history, is_admin: bool = False) -> str:
-    """Formats chat history top-to-bottom with visual distinction."""
-    if not history:
-        return "📭 <i>No messages recorded yet.</i>"
-    
-    lines = []
-    # history is fetched DESC (newest first) by SQL, but get_chat_history 
-    # should ideally return it ASC (oldest first) for top-to-bottom reading.
-    for role, text, ts in history:
-        time_str = ts[11:16] # Extract HH:MM
-        
-        if role == 'admin':
-            name = "💼 <b>Broker Support</b>" if not is_admin else "💼 <b>You (Broker)</b>"
-            # Using blockquotes to visually separate the admin's text
-            lines.append(f"{name} <i>({time_str})</i>:\n<blockquote>{text}</blockquote>")
-        else:
-            name = "👤 <b>Buyer</b>" if is_admin else "👤 <b>You</b>"
-            # Standard text for the buyer
-            lines.append(f"{name} <i>({time_str})</i>:\n<blockquote>{text}</blockquote>")
-            
-    full_text = "\n\n".join(lines)
-    
-    # 🛡️ SAFETY CHECK: Telegram 4096 character limit safeguard
-    # Safely drops older lines instead of raw-slicing strings to protect HTML tags
-    if len(full_text) > 3800:
-        notice = "<i>[Earlier messages omitted due to length...]</i>\n\n"
-        while len(lines) > 1 and len(notice + "\n\n".join(lines)) > 3800:
-            lines.pop(0) # Remove the oldest message
-        full_text = notice + "\n\n".join(lines)
-        
-    return full_text
-
-
-# 1. Admin presses "Reply to Buyer"
-@router.callback_query(F.data.startswith("admin_reply_"))
-async def cb_admin_initiate_reply(callback: CallbackQuery, state: FSMContext) -> None:
-    buyer_chat_id = int(callback.data.split("_")[2])
-    buyer_name = get_buyer_username(buyer_chat_id)
-    
-    _, has_history, unlock_state = get_current_keyboard_state(callback.message.reply_markup)
-    try:
-        await callback.message.edit_reply_markup(
-            reply_markup=admin_chat_keyboard(
-                buyer_chat_id, show_reply=False, show_history=has_history, unlock_state=unlock_state
-            )
-        )
-    except TelegramBadRequest:
-        pass
-
-    await state.update_data(target_buyer_id=buyer_chat_id)
-    await state.set_state(ChatStates.waiting_for_admin_reply)
-    
-    text = (
-        f"📝 <b>Broker Communication Channel</b> ({buyer_name})\n\n"
-        "⚠️ Please send your entire response in a single message. "
-        "This secure session will close automatically upon transmission."
-    )
-    await callback.message.answer(text)
-    await callback.answer()
-
-# 2. Admin types their message
-@router.message(ChatStates.waiting_for_admin_reply)
-async def process_admin_reply(message: Message, state: FSMContext) -> None:
-    data = await state.get_data()
-    buyer_chat_id = data.get("target_buyer_id")
-    bot_username = (await message.bot.get_me()).username
-    buyer_name = get_buyer_username(buyer_chat_id)
-    
-    save_chat_message(bot_username, buyer_chat_id, "admin", message.text)
-    
-    formatted_msg = (
-        "💼 <b>Latest message from Broker Support:</b>\n\n"
-        f"{message.text}"
-    )
-    
-    try:
-        await message.bot.send_message(
-            chat_id=buyer_chat_id, 
-            text=formatted_msg, 
-            reply_markup=buyer_chat_keyboard(show_reply=True, show_history=True)
-        )
-        
-        await message.answer(
-            f"✅ <i>Message successfully delivered to buyer {buyer_name}. The reply session is now closed.</i>"
-        )
-    except Exception as exc:
-        await message.answer(f"❌ <i>Delivery failed: {exc}</i>")
-        
-    await state.clear()
-
-# 3. Buyer presses "Reply to Broker"
-# 3. Buyer presses "Reply to Broker"
-@router.callback_query(F.data == "buyer_reply")
-async def cb_buyer_initiate_reply(callback: CallbackQuery, state: FSMContext) -> None:
-    _, has_history, _ = get_current_keyboard_state(callback.message.reply_markup)
-
-    # Save the prompt message ID and history state into FSM data
-    # (We DO NOT edit or hide the reply button here!)
-    await state.update_data(
-        prompt_msg_id=callback.message.message_id, 
-        has_history=has_history
-    )
-    await state.set_state(ChatStates.waiting_for_buyer_reply)
-    
-    text = (
-        "📝 <b>Secure Broker Response</b>\n\n"
-        "⚠️ Please send your response in a single message. "
-        "This secure session will close automatically upon transmission."
-    )
-    await callback.message.answer(text)
-    await callback.answer()
-
-# 4. Buyer types their message
-@router.message(ChatStates.waiting_for_buyer_reply, F.chat.type == "private")
-async def process_buyer_reply(message: Message, state: FSMContext) -> None:
-    data = await state.get_data()
-    prompt_msg_id = data.get("prompt_msg_id")
-    has_history = data.get("has_history", True)
-    
-    bot_username = (await message.bot.get_me()).username
-    buyer_chat_id = message.from_user.id
-    
-    save_chat_message(bot_username, buyer_chat_id, "buyer", message.text)
-    
-    # 1. Fetch & format offer amount into currency ($1,111.00)
-    raw_offer = get_buyer_offer(bot_username, buyer_chat_id)
-    try:
-        formatted_offer = f"${float(raw_offer):,.2f}"
-    except (ValueError, TypeError):
-        formatted_offer = raw_offer
-
-    if message.from_user.username:
-        buyer_link = f"@{message.from_user.username}"
-    else:
-        buyer_link = f"<a href='tg://user?id={buyer_chat_id}'>{message.from_user.first_name}</a>"
-
-    # 2. Formatted alert with bot username mention
-    admin_alert = (
-        f"💬 <b>Reply from Buyer:</b> {buyer_link}\n"
-        f"💰 <b>Current Offer:</b> {formatted_offer} for @{bot_username}\n\n"
-        f"{message.text}"
-    )
-
-    if GROUP_CHAT_ID:
-        try:
-            await message.bot.send_message(
-                chat_id=GROUP_CHAT_ID, 
-                text=admin_alert, 
-                reply_markup=admin_chat_keyboard(
-                    buyer_chat_id, 
-                    show_reply=True, 
-                    show_history=True, 
-                    unlock_state="show"
-                )
-            )
-        except Exception as exc:
-            logger.warning("Failed to forward buyer reply to group: %s", exc)
-
-    if prompt_msg_id:
-        try:
-            await message.bot.edit_message_reply_markup(
-                chat_id=buyer_chat_id,
-                message_id=prompt_msg_id,
-                reply_markup=buyer_chat_keyboard(show_reply=False, show_history=has_history)
-            )
-        except Exception:
-            pass
-
-    await message.answer(
-        "✅ <i>Your message has been delivered to the broker.</i>",
-        reply_markup=buyer_chat_keyboard(show_reply=False, show_history=True)
-    )
-
-    await state.clear()
-
-# 5. View Chat History Handlers
-@router.callback_query(F.data.startswith("admin_history_"))
-async def cb_admin_history(callback: CallbackQuery) -> None:
-    buyer_chat_id = int(callback.data.split("_")[2])
-    bot_username = (await callback.bot.get_me()).username
-    history = get_chat_history(bot_username, buyer_chat_id)
-    buyer_name = get_buyer_username(buyer_chat_id)
-    
-    # Unpack 3 variables now
-    has_reply, _, unlock_state = get_current_keyboard_state(callback.message.reply_markup)
-    
-    # Username is dynamically injected into the title
-    text = f"📜 <b>Chat History ({buyer_name})</b>\n\n" + format_history_text(history, is_admin=True)
-    
-    try:
-        await callback.message.edit_text(text, reply_markup=admin_chat_keyboard(buyer_chat_id, show_reply=has_reply, show_history=False, unlock_state=unlock_state))
-    except TelegramBadRequest:
-        pass
-    await callback.answer()
-
-@router.callback_query(F.data == "buyer_history")
-async def cb_buyer_history(callback: CallbackQuery) -> None:
-    bot_username = (await callback.bot.get_me()).username
-    history = get_chat_history(bot_username, callback.from_user.id)
-    
-    # We add an extra '_' here to catch the 3rd variable (unlock_state)
-    has_reply, _, _ = get_current_keyboard_state(callback.message.reply_markup)
-    
-    text = "📜 <b>Chat History</b>\n\n" + format_history_text(history, is_admin=False)
-    
-    try:
-        await callback.message.edit_text(text, reply_markup=buyer_chat_keyboard(show_reply=has_reply, show_history=False))
-    except TelegramBadRequest:
-        pass
-    await callback.answer()
-
-
 @router.callback_query(F.data.startswith("explore_ids"))
 async def cb_explore_ids(callback: CallbackQuery) -> None:
     # Extracts the source tag, safely defaulting to "start" for old buttons
@@ -777,64 +608,6 @@ async def cb_explore_ids(callback: CallbackQuery) -> None:
         pass
     await callback.answer()
 
-@router.callback_query(F.data.startswith("admin_unlock_"))
-async def cb_admin_unlock(callback: CallbackQuery) -> None:
-    buyer_chat_id = int(callback.data.split("_")[2])
-    has_reply, has_history, _ = get_current_keyboard_state(callback.message.reply_markup)
-    
-    try:
-        # Switch button to "confirm" state
-        await callback.message.edit_reply_markup(reply_markup=admin_chat_keyboard(buyer_chat_id, show_reply=has_reply, show_history=has_history, unlock_state="confirm"))
-    except TelegramBadRequest:
-        pass
-    await callback.answer()
-
-@router.callback_query(F.data.startswith("admin_unlkcanc_"))
-async def cb_admin_unlock_cancel(callback: CallbackQuery) -> None:
-    buyer_chat_id = int(callback.data.split("_")[2])
-    has_reply, has_history, _ = get_current_keyboard_state(callback.message.reply_markup)
-    
-    try:
-        # Switch button back to "show" state
-        await callback.message.edit_reply_markup(reply_markup=admin_chat_keyboard(buyer_chat_id, show_reply=has_reply, show_history=has_history, unlock_state="show"))
-    except TelegramBadRequest:
-        pass
-    await callback.answer()
-
-@router.callback_query(F.data.startswith("admin_unlkconf_"))
-async def cb_admin_unlock_confirm(callback: CallbackQuery) -> None:
-    buyer_chat_id = int(callback.data.split("_")[2])
-    bot_username = (await callback.bot.get_me()).username
-    
-    # 1. Unlock the bid in the DB
-    unlock_bid(bot_username, buyer_chat_id)
-    
-    # 2. Update Admin message to remove the unlock buttons entirely
-    has_reply, has_history, _ = get_current_keyboard_state(callback.message.reply_markup)
-    try:
-        await callback.message.edit_reply_markup(reply_markup=admin_chat_keyboard(buyer_chat_id, show_reply=has_reply, show_history=has_history, unlock_state="none"))
-    except TelegramBadRequest:
-        pass
-    # Fetch their name from your DB helper function
-    buyer_name = get_buyer_username(buyer_chat_id)
-    
-    # Send the admin a message with the clickable profile link
-    await callback.message.answer(
-        f"✅ <b>Offer Unlocked</b> for <a href='tg://user?id={buyer_chat_id}'>{buyer_name}</a>. "
-        "They can now modify their bid or use bot menus normally."
-    )
-    
-    # 3. Notify the Buyer that negotiations have concluded
-    buyer_text = (
-        "🔓 <b>Negotiations Concluded</b>\n\n"
-        "The broker has unlocked your offer. You may now modify your bid amount or explore other assets."
-    )
-    try:
-        await callback.bot.send_message(chat_id=buyer_chat_id, text=buyer_text, reply_markup=change_offer_keyboard(source="start"))
-    except Exception:
-        pass
-        
-    await callback.answer()
 
 async def setup_bot_commands(bot: Bot):
     """Pushes the command menu to the Telegram UI."""
@@ -857,28 +630,15 @@ async def catch_all_messages(message: Message, state: FSMContext) -> None:
     
     if past_bid:
         amount, contact, timestamp = past_bid
-        
-        # 🔒 IF LOCKED (Admin has replied): Show the locked notice
-        if is_bid_locked(bot_username, message.from_user.id):
-            text = (
-                "🔒 <b>Active Negotiation Locked</b>\n\n"
-                "Please use the <b>'💬 Reply to Broker'</b> button attached to your history log to send a message. "
-                "If you have already submitted your response, please await the broker's review."
-            )
-            await message.answer(text, reply_markup=locked_offer_keyboard(source="catchall"))
-            
-        # 🔓 IF NOT LOCKED (Offer made, but admin hasn't replied yet): 
-        # Do NOT forward random text. Just show normal menu so other functions work.
-        else:
-            text = (
-                "👋 Welcome back!\n\n"
-                "We have your current offer on file:\n"
-                f"💰 <b>Amount:</b> ${amount:,.2f}\n"
-                f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
-                f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
-                "Would you like to modify your offer?"
-            )
-            await message.answer(text, reply_markup=change_offer_keyboard(source="catchall"))
+        text = (
+            "👋 Welcome back!\n\n"
+            "We have your current offer on file:\n"
+            f"💰 <b>Amount:</b> ${amount:,.2f}\n"
+            f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
+            f"📅 <b>Date:</b> {timestamp[:16]}\n\n"
+            "Would you like to modify your offer?"
+        )
+        await message.answer(text, reply_markup=change_offer_keyboard(source="catchall"))
     else:
         # Default start layout for users who haven't bid yet
         text = (
