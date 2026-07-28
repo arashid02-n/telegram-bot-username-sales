@@ -33,7 +33,6 @@ async function loadBotInventory() {
 function renderBotCards(bots) {
   if (!assetGrid) return;
   
-  // Clear existing content
   assetGrid.innerHTML = '';
 
   if (bots.length === 0) {
@@ -41,7 +40,6 @@ function renderBotCards(bots) {
     return;
   }
 
-  // Generate HTML for each bot card
   bots.forEach(bot => {
     const badgeClass = bot.status_code === 'active' ? 'status-active' : 'status-pending';
     
@@ -52,7 +50,9 @@ function renderBotCards(bots) {
           <span class="status-badge ${badgeClass}">${bot.status}</span>
         </div>
 
-        <h3 class="bot-handle">@${bot.username}</h3>
+        <h3 class="bot-handle">
+          <a href="/${bot.id}" style="text-decoration: none; color: inherit;">@${bot.username}</a>
+        </h3>
         <p class="bot-desc">${bot.desc}</p>
 
         <div class="card-meta">
@@ -65,7 +65,6 @@ function renderBotCards(bots) {
             <span class="meta-value">@BotFather</span>
           </div>
         </div>
-
         <div class="card-actions">
           <a href="https://t.me/${bot.username}?start=website" target="_blank" rel="noopener" class="btn-telegram">
             💬 Make Offer on Telegram

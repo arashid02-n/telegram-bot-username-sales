@@ -544,3 +544,44 @@ footer {
 .form-group input:user-invalid ~ .error-msg {
   display: block;
 }
+
+/* --- PROMINENT BACK BUTTON STYLING --- */
+.btn-back-inventory {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2rem;
+  padding: 10px 18px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Specific styles for the Back button on dynamic pages */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px; /* Adds breathing room above the bot details card */
+  padding: 8px 16px;   /* Shrinks the button size */
+  font-size: 0.9rem;   /* Slightly smaller text */
+  background-color: var(--card-bg); /* Matches the page's container color */
+  color: var(--text-muted); /* Soft grey text so it isn't glaring */
+  border: 1px solid var(--border-color); /* Subtle outline for distinction */
+  border-radius: var(--radius, 8px);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* Make it pop slightly when the user hovers over it */
+.btn-back:hover {
+  background-color: var(--bg-color);
+  color: var(--text-main); 
+  border-color: var(--accent-blue); /* Highlights in Telegram blue on hover */
+}

@@ -1,18 +1,25 @@
-from fastapi import FastAPI, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import httpx
-import logging
 import os
+import json
+import logging
+import httpx
 from dotenv import load_dotenv
 
-# Load secrets from .env file
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+
+# Load environment variables
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI(title="Web Form Telegram Relay")
+app = FastAPI(title="BuyTelegramBots Marketplace")
 
-# Securely grab tokens from environment variables
+# Initialize Jinja2 templates directory
+templates = Jinja2Templates(directory="templates")
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")
 
@@ -21,44 +28,99 @@ if not BOT_TOKEN or not GROUP_CHAT_ID:
 
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-
-# Enable CORS so your website frontend can send POST requests without browser blocks
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace "*" with your frontend domain in production, replace with: ( "https://buytelegrambots.com", "https://www.buytelegrambots.com" )
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# 1. Define the incoming form payload structure
-# (We changed item_requested -> bot_username and budget -> bid to match index.html exactly)
 class FormSubmission(BaseModel):
     bot_username: str
     name: str
     contact: str
-    bid: str | int | float
+    bid: float
     notes: str | None = None
 
 
-# 2. Format payload into clean HTML for Telegram
 def format_telegram_message(data: FormSubmission) -> str:
-    text = (
-        "<b>📥 New Web Form Bid Received!</b>\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n"
-        f"<b>🤖 Target Asset:</b> <code>@{data.bot_username.replace('@', '')}</code>\n"
-        f"<b>💰 Offer Amount:</b> ${data.bid}\n"
+    notes_section = f"\n<b>📝 Notes:</b> {data.notes}" if data.notes else ""
+    return (
+        f"🚨 <b>NEW BUYER OFFER RECEIVED</b> 🚨\n\n"
+        f"<b>🤖 Target Asset:</b> {data.bot_username}\n"
+        f"<b>💰 Offer Amount:</b> ${data.bid:,.2f} USD\n"
         f"<b>👤 Buyer Name:</b> {data.name}\n"
-        f"<b>💬 Contact Info:</b> <code>{data.contact}</code>\n"
+        f"<b>📬 Contact Info:</b> {data.contact}"
+        f"{notes_section}\n\n"
+        f"<i>⚡ Action Required: Reach out to buyer promptly.</i>"
     )
-    if data.notes:
-        text += f"\n<b>📝 Additional Notes:</b>\n<i>{data.notes}</i>"
-
-    return text
 
 
-# 3. Webhook endpoint to receive form POSTs
+def get_expanded_bot_data(slug: str):
+    """Loads bots.json and constructs expanded content for landing pages."""
+    try:
+        with open("bots.json", "r", encoding="utf-8") as f:
+            bots = json.load(f)
+    except Exception as e:
+        logging.error(f"Error reading bots.json: {e}")
+        return None
+
+    bot = next((b for b in bots if b["id"].lower() == slug.lower()), None)
+    if not bot:
+        return None
+
+    numeric_min_bid = "".join(c for c in bot.get("est_value", "100") if c.isdigit())
+    min_bid = int(numeric_min_bid) // 2 if numeric_min_bid else 100
+
+    use_cases_map = {
+        "Finance & Crypto": [
+            "Automated Trading & Signal Alerts",
+            "Portfolio Tracking & Wallet Notifications",
+            "OTC Escrow & Swap Automation"
+        ],
+        "Travel": [
+            "Flight Price Tracking & Alert System",
+            "Travel Deal Aggregation & Booking",
+            "Itinerary & Currency Conversion Assistant"
+        ],
+        "AI & Automation": [
+            "AI Chatbot & Prompt Interface",
+            "Workflow Automation & API Integration",
+            "Content Generation & Smart Summaries"
+        ],
+        "Utilities": [
+            "Unit & Currency Conversion Tool",
+            "Channel Management & Moderation Bot",
+            "Subscription & Payment Relay"
+        ]
+    }
+
+    ideal_for_map = {
+        "Finance & Crypto": ["Web3 Startups", "DeFi Protocols", "Crypto Traders"],
+        "Travel": ["Travel Agencies", "Flight Aggregators", "Digital Nomads"],
+        "AI & Automation": ["SaaS Founders", "AI Developers", "Productivity Techs"],
+        "Utilities": ["Community Managers", "Tool Developers", "Agency Owners"]
+    }
+
+    category = bot.get("category", "Utilities")
+
+    return {
+        "id": bot["id"],
+        "slug": bot["id"],
+        "handle": f"@{bot['username']}",
+        "raw_username": bot["username"],
+        "category": category,
+        "est_value": bot.get("est_value", "$500"),
+        "min_bid": min_bid,
+        "status": bot.get("status", "Accepting Bids"),
+        "pitch": bot.get("desc", "High-value premium Telegram handle available for acquisition."),
+        "ideal_for": ideal_for_map.get(category, ["Digital Entrepreneurs", "Brand Owners"]),
+        "use_cases": use_cases_map.get(category, ["Brand Protection", "Direct Audience Redirect"])
+    }
+
+
 @app.post("/api/submit-form", status_code=status.HTTP_200_OK)
 async def handle_form_submission(form_data: FormSubmission):
     formatted_message = format_telegram_message(form_data)
@@ -91,10 +153,36 @@ async def handle_form_submission(form_data: FormSubmission):
 
     return {"status": "success", "message": "Request delivered to team group chat."}
 
-from fastapi.staticfiles import StaticFiles
 
-# ==========================================
-# SERVE FRONTEND STATIC FILES
-# (Must be placed AFTER all /api routes!)
-# ==========================================
+@app.get("/{slug}", response_class=HTMLResponse)
+async def serve_bot_landing_page(request: Request, slug: str):
+    # Serve static asset files directly if requested
+    if os.path.isfile(slug):
+        return FileResponse(slug)
+
+    if "." in slug:
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    bot = get_expanded_bot_data(slug)
+
+    if not bot:
+        raise HTTPException(status_code=404, detail="Username not found")
+
+    title = f"Buy {bot['handle']} - Premium Telegram Username"
+    description = f"Acquire {bot['handle']} ({bot['category']}). {bot['pitch'][:120]}..."
+    telegram_cta = f"https://t.me/{bot['raw_username']}"
+
+    return templates.TemplateResponse(
+        request=request,
+        name="bot_detail.html",
+        context={
+            "bot": bot,
+            "title": title,
+            "description": description,
+            "telegram_cta": telegram_cta,
+        }
+    )
+
+
+# Serve root index.html and static files
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
