@@ -1,0 +1,344 @@
+[
+  {
+    "slug": "gramauctionbot",
+    "handle": "@GramAuctionBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$2,500",
+    "min_bid": "1700",
+    "pitch": "A top-tier infrastructure handle for Telegram's secondary market. Direct exact-match keywords make this the premier identity for any platform facilitating username trades, TON auctions, or Fragment automated bidding tools.",
+    "ideal_for": [
+      "Telegram Marketplace Developers",
+      "NFT & Username Escrow Services",
+      "Automated Fragment Bidding Tools"
+    ],
+    "use_cases": [
+      "Real-time bid tracking and outbid alerts for Telegram handles",
+      "Non-custodial escrow and trading interface for digital assets",
+      "Automated sniper bot for Fragment auctions"
+    ]
+  },
+  {
+    "slug": "tradegramsbot",
+    "handle": "@TradeGramsBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$1,800",
+    "min_bid": "1200",
+    "pitch": "A high-value, brandable handle perfectly positioned for the decentralized finance and crypto trading space. The inclusion of 'Grams' strongly ties into the TON ecosystem, providing immediate trust and recognition for users looking to trade, swap, or track crypto assets natively within Telegram.",
+    "ideal_for": [
+      "Crypto Trading Signal Providers",
+      "DeFi Protocol Developers",
+      "Web3 Portfolio Trackers"
+    ],
+    "use_cases": [
+      "Peer-to-peer crypto swapping interface",
+      "Real-time token price alerts and charting",
+      "Automated portfolio rebalancing"
+    ]
+  },
+  {
+    "slug": "flightticketbot",
+    "handle": "@FlightTicketBot",
+    "category": "Travel",
+    "status": "Accepting Bids",
+    "est_value": "$1,500",
+    "min_bid": "1000",
+    "pitch": "This exact-match premium handle instantly establishes authority in the travel sector. It is highly searchable and memorable, making it the ultimate namespace for flight aggregators, automated ticket booking services, and travel alert communities looking to dominate the Telegram ecosystem.",
+    "ideal_for": [
+      "Flight Aggregator Businesses",
+      "Travel Agencies & Brokers",
+      "Deal-Hunting Communities"
+    ],
+    "use_cases": [
+      "Automated ticket booking via Telegram WebApps",
+      "Push notifications for flash flight sales",
+      "AI-driven travel concierge services"
+    ]
+  },
+  {
+    "slug": "thataicoachbot",
+    "handle": "@ThatAiCoachBot",
+    "category": "AI & Automation",
+    "status": "Accepting Bids",
+    "est_value": "$1,200",
+    "min_bid": "800",
+    "pitch": "An exceptionally conversational and modern handle capitalizing on consumer AI trends. Perfect for personal growth platforms, fitness mentoring, or productivity assistants looking for an approachable consumer brand inside Telegram Mini Apps.",
+    "ideal_for": [
+      "AI Startups & Founders",
+      "Personal Development Brands",
+      "Fitness & Life Coaching Platforms"
+    ],
+    "use_cases": [
+      "24/7 AI-driven conversational life coaching",
+      "Automated workout and meal plan generation",
+      "Daily habit tracking and accountability reminders"
+    ]
+  },
+  {
+    "slug": "gramiumbot",
+    "handle": "@GramiumBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$950",
+    "min_bid": "600",
+    "pitch": "A sleek, Web3-native single-word brand handle. Sounds like an established protocol or token, making it ideal for TON-based yield aggregators, staking vaults, or DeFi utilities wanting institutional appeal.",
+    "ideal_for": [
+      "TON Ecosystem Projects",
+      "DeFi Staking & Yield Vaults",
+      "Web3 Infrastructure Teams"
+    ],
+    "use_cases": [
+      "Automated yield farming management for TON tokens",
+      "Token distribution and staking dashboard",
+      "Decentralized liquidity management bot"
+    ]
+  },
+  {
+    "slug": "gramancebot",
+    "handle": "@gramancebot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$850",
+    "min_bid": "550",
+    "pitch": "A clever portmanteau blending 'Gram' and 'Finance', immediately signaling financial authority within the Telegram ecosystem. Highly memorable for trading terminals, exchange gateways, or Web3 banking tools.",
+    "ideal_for": [
+      "Crypto Exchange Startups",
+      "DeFi Aggregators",
+      "Crypto Payment Gateway Providers"
+    ],
+    "use_cases": [
+      "In-Telegram crypto trading terminal and order execution",
+      "Cross-chain swap aggregator",
+      "Crypto payroll and invoice management"
+    ]
+  },
+  {
+    "slug": "onegrambot",
+    "handle": "@OneGramBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$650",
+    "min_bid": "400",
+    "pitch": "Clean, minimalist handle with strong financial connotations. Highly adaptable for gold-backed digital assets, micro-tipping networks, or simplified single-click micro-transfer services on Telegram.",
+    "ideal_for": [
+      "Gold-Backed Crypto Projects",
+      "Micro-Tipping Platforms",
+      "Peer-to-Peer Payment Networks"
+    ],
+    "use_cases": [
+      "Instant micro-payments and tipping within group chats",
+      "Physical gold spot price tracking and tokenized trading",
+      "One-click TON transfer widget"
+    ]
+  },
+  {
+    "slug": "mygramsbot",
+    "handle": "@MyGramsBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$550",
+    "min_bid": "350",
+    "pitch": "An intuitive, user-centric namespace for personal account management. Ideal for portfolio dashboards, wallet balances, or asset tracking tools where user ownership is the central theme.",
+    "ideal_for": [
+      "Non-Custodial Wallet Apps",
+      "Portfolio Tracking Services",
+      "Personal Asset Management Tools"
+    ],
+    "use_cases": [
+      "Unified crypto and NFT portfolio overview inside Telegram",
+      "Customizable wallet activity and transaction alerts",
+      "Personal asset vault and balance checker"
+    ]
+  },
+  {
+    "slug": "freegramsbot",
+    "handle": "@FreeGramsBot",
+    "category": "Utilities",
+    "status": "Accepting Bids",
+    "est_value": "$500",
+    "min_bid": "300",
+    "pitch": "High-conversion viral handle built for community engagement and user acquisition. Naturally attracts search traffic from users looking for crypto rewards, airdrops, and promotional incentive programs.",
+    "ideal_for": [
+      "Crypto Reward Programs",
+      "Airdrop & Referral Marketers",
+      "Web3 Gaming & Quest Platforms"
+    ],
+    "use_cases": [
+      "Automated token faucet distribution for new crypto projects",
+      "Social task verification for community giveaways",
+      "Referral tracking and reward payout system"
+    ]
+  },
+  {
+    "slug": "milligrambot",
+    "handle": "@MilliGramBot",
+    "category": "Utilities",
+    "status": "Accepting Bids",
+    "est_value": "$400",
+    "min_bid": "250",
+    "pitch": "Dual-purpose utility handle combining precise metric weight conversions with micro-transaction crypto branding. Offers clear utility for calculation tools or micro-scale payment bots.",
+    "ideal_for": [
+      "Utility Tool Developers",
+      "Micro-Payment Protocols",
+      "Scientific Calculation Apps"
+    ],
+    "use_cases": [
+      "Precision unit and weight conversion calculator",
+      "Micro-fractional token transfer terminal",
+      "Lab and measurement converter for students"
+    ]
+  },
+  {
+    "slug": "dollarstogramsbot",
+    "handle": "@DollarsToGramsBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$350",
+    "min_bid": "220",
+    "pitch": "Unambiguous, clear conversion handle for USD to digital asset or precious metal pricing. Perfect for fiat-onramp gateways, exchange rate calculators, or precious metal tracking.",
+    "ideal_for": [
+      "Fiat-to-Crypto Onramps",
+      "Precious Metal Traders",
+      "Currency Exchange Bots"
+    ],
+    "use_cases": [
+      "Real-time USD to TON/Gram rate calculator",
+      "Gold and silver spot price monitoring against the US Dollar",
+      "Fiat purchase calculator for Telegram WebApps"
+    ]
+  },
+  {
+    "slug": "eurostogramsbot",
+    "handle": "@EurosToGramsBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$300",
+    "min_bid": "180",
+    "pitch": "Geographically targeted conversion handle serving European users and cross-border currency traders. Clear branding for EUR fiat gateways and metal pricing.",
+    "ideal_for": [
+      "European Crypto Gateways",
+      "Euro Currency Brokers",
+      "Gold & Bullion Trackers"
+    ],
+    "use_cases": [
+      "EUR to crypto conversion rate ticker and calculator",
+      "European precious metal price monitoring",
+      "Cross-border payment estimate tool"
+    ]
+  },
+  {
+    "slug": "poundstogramsbot",
+    "handle": "@PoundsToGramsBot",
+    "category": "Utilities",
+    "status": "Accepting Bids",
+    "est_value": "$280",
+    "min_bid": "170",
+    "pitch": "Highly functional conversion handle serving both mass unit conversions (lbs to g) and GBP currency conversions into crypto/precious metals.",
+    "ideal_for": [
+      "Unit Conversion Services",
+      "UK-Focused Crypto Gateways",
+      "Fitness & Culinary Apps"
+    ],
+    "use_cases": [
+      "Weight conversion utility (Pounds to Grams) for recipes and fitness",
+      "GBP to TON token exchange rate calculator",
+      "Precious metal spot price tracking in British Pounds"
+    ]
+  },
+  {
+    "slug": "bitcoin2grambot",
+    "handle": "@Bitcoin2GramBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$250",
+    "min_bid": "150",
+    "pitch": "Direct utility handle targeting cross-chain transactions between Bitcoin and the TON ecosystem. Great for automated bridge notifications or swap services.",
+    "ideal_for": [
+      "Cross-Chain Bridge Protocols",
+      "Crypto Exchange Integrators",
+      "Arbitrage Bot Developers"
+    ],
+    "use_cases": [
+      "BTC to TON/Gram cross-chain swap calculator",
+      "Automated exchange rate monitoring between BTC and TON",
+      "Cross-chain transaction status tracking"
+    ]
+  },
+  {
+    "slug": "dollars2gramsbot",
+    "handle": "@Dollars2GramsBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$180",
+    "min_bid": "100",
+    "pitch": "Shorthand variant for USD-to-crypto/metal conversions. Perfect budget-friendly handle for developers offering fast conversion tools or price ticker bots.",
+    "ideal_for": [
+      "Price Ticker Developers",
+      "Budget Fiat Gateway Apps",
+      "Currency Converter Tools"
+    ],
+    "use_cases": [
+      "Quick USD to Gram conversion tool",
+      "Fiat valuation ticker for Web3 portfolios",
+      "Telegram inline query converter"
+    ]
+  },
+  {
+    "slug": "euros2gramsbot",
+    "handle": "@Euros2GramsBot",
+    "category": "Finance & Crypto",
+    "status": "Accepting Bids",
+    "est_value": "$150",
+    "min_bid": "90",
+    "pitch": "Compact variant handle tailored for Euro conversion utilities. Excellent choice for lightweight price check tools or inline conversion bots.",
+    "ideal_for": [
+      "Inline Bot Developers",
+      "European FX Tickers",
+      "Niche Conversion Tools"
+    ],
+    "use_cases": [
+      "Inline price checking (EUR to TON/Gram) in chats",
+      "Automated daily Euro exchange updates",
+      "Quick metal unit valuation in Euros"
+    ]
+  },
+  {
+    "slug": "pound2grambot",
+    "handle": "@Pound2GramBot",
+    "category": "Utilities",
+    "status": "Accepting Bids",
+    "est_value": "$140",
+    "min_bid": "80",
+    "pitch": "Shortened unit conversion handle suited for quick metric calculations, recipe scaling, or GBP-to-crypto pricing queries.",
+    "ideal_for": [
+      "Recipe & Culinary Tool Developers",
+      "Fitness Weight Converters",
+      "UK Price Tickers"
+    ],
+    "use_cases": [
+      "Instant mass unit conversion tool for chats",
+      "Recipe weight adjustment assistant",
+      "GBP exchange calculation utility"
+    ]
+  },
+  {
+    "slug": "grams4freebot",
+    "handle": "@Grams4FreeBot",
+    "category": "Utilities",
+    "status": "Accepting Bids",
+    "est_value": "$120",
+    "min_bid": "70",
+    "pitch": "Informal reward handle designed for social giveaways, community faucet drops, micro-tasking rewards, and promotional campaign bots.",
+    "ideal_for": [
+      "Community Reward Managers",
+      "Micro-Tasking Platforms",
+      "Viral Promotional Campaigns"
+    ],
+    "use_cases": [
+      "Task-based reward distribution bot",
+      "Social media sharing incentive system",
+      "Telegram group engagement giveaway management"
+    ]
+  }
+]
