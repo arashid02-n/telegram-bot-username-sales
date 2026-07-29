@@ -1,0 +1,164 @@
+[
+  {
+    "id": "gramauctionbot",
+    "username": "GramAuctionBot",
+    "category": "Finance & Crypto",
+    "est_value": "$2,500",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Premier brand handle ideal for Telegram username auctions, NFT marketplaces, and bid automation tools."
+  },
+  {
+    "id": "tradegramsbot",
+    "username": "TradeGramsBot",
+    "category": "Finance & Crypto",
+    "est_value": "$1,800",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "High-value brand handle for crypto trading signals, portfolio tracking, and Telegram exchange bots."
+  },
+  {
+    "id": "flightticketbot",
+    "username": "FlightTicketBot",
+    "category": "Travel",
+    "est_value": "$1,500",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Exact-match premium handle ideal for flight aggregators, ticket booking, and travel alert bots."
+  },
+  {
+    "id": "thataicoachbot",
+    "username": "ThatAiCoachBot",
+    "category": "AI & Automation",
+    "est_value": "$1,200",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Trendy brand handle tailored for personal AI coaching, fitness mentoring, and automated advice bots."
+  },
+  {
+    "id": "gramiumbot",
+    "username": "GramiumBot",
+    "category": "Finance & Crypto",
+    "est_value": "$950",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Sleek, Web3-native brand handle ideal for TON ecosystem protocols, yield vaults, or DeFi bots."
+  },
+  {
+    "id": "gramancebot",
+    "username": "gramancebot",
+    "category": "Finance & Crypto",
+    "est_value": "$850",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Catchy portmanteau brand perfect for crypto exchange interfaces, peer-to-peer trading, or community bots."
+  },
+  {
+    "id": "onegrambot",
+    "username": "OneGramBot",
+    "category": "Finance & Crypto",
+    "est_value": "$650",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Minimalist handle suitable for gold-backed tokens, micro-tipping services, or single-unit crypto transfers."
+  },
+  {
+    "id": "mygramsbot",
+    "username": "MyGramsBot",
+    "category": "Finance & Crypto",
+    "est_value": "$550",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Intuitive user-facing handle ideal for personal wallet tracking, balance management, and asset dashboards."
+  },
+  {
+    "id": "freegramsbot",
+    "username": "FreeGramsBot",
+    "category": "Utilities",
+    "est_value": "$500",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "High-demand viral handle tailored for crypto faucets, reward programs, and promotional referral bots."
+  },
+  {
+    "id": "milligrambot",
+    "username": "MilliGramBot",
+    "category": "Utilities",
+    "est_value": "$400",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Versatile handle for scientific metric unit conversions or micro-transaction crypto payments."
+  },
+  {
+    "id": "dollarstogramsbot",
+    "username": "DollarsToGramsBot",
+    "category": "Finance & Crypto",
+    "est_value": "$350",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Clear conversion handle for USD-to-Gram/TON pricing, gold calculations, and fiat gateways."
+  },
+  {
+    "id": "eurostogramsbot",
+    "username": "EurosToGramsBot",
+    "category": "Finance & Crypto",
+    "est_value": "$300",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Targeted conversion handle for EUR currency exchanges, gold pricing calculators, and European crypto gateways."
+  },
+  {
+    "id": "poundstogramsbot",
+    "username": "PoundsToGramsBot",
+    "category": "Utilities",
+    "est_value": "$280",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Dual-purpose converter handle ideal for mass unit conversion (lbs to g) or GBP-to-crypto exchanges."
+  },
+  {
+    "id": "bitcoin2grambot",
+    "username": "Bitcoin2GramBot",
+    "category": "Finance & Crypto",
+    "est_value": "$250",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Direct utility handle for instant BTC-to-TON/Gram cross-chain swaps and exchange rate bots."
+  },
+  {
+    "id": "dollars2gramsbot",
+    "username": "Dollars2GramsBot",
+    "category": "Finance & Crypto",
+    "est_value": "$180",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Shortened variant handle for USD exchange tracking, fiat on-ramps, and quick conversion tools."
+  },
+  {
+    "id": "euros2gramsbot",
+    "username": "Euros2GramsBot",
+    "category": "Finance & Crypto",
+    "est_value": "$150",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Alternative shorthand handle for Euro exchange rate updates and quick fiat-to-crypto calculations."
+  },
+  {
+    "id": "pound2grambot",
+    "username": "Pound2GramBot",
+    "category": "Utilities",
+    "est_value": "$140",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Compact unit conversion handle for recipe measurements, weight calculations, or currency conversion."
+  },
+  {
+    "id": "grams4freebot",
+    "username": "Grams4FreeBot",
+    "category": "Utilities",
+    "est_value": "$120",
+    "status": "Accepting Bids",
+    "status_code": "active",
+    "desc": "Casual reward-focused handle suitable for promotional giveaways, community air-drops, and micro-tasks."
+  }
+]
