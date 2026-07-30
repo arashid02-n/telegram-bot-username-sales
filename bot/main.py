@@ -63,8 +63,8 @@ def main_keyboard(source: str = "start") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="💵 Make an Offer", callback_data="make_offer")],
-            [InlineKeyboardButton(text="🌐 Explore Other IDs", callback_data=f"explore_ids:{source}")],
-            [InlineKeyboardButton(text="ℹ️ Asset Info", callback_data=f"asset_info:{source}")],
+            [InlineKeyboardButton(text="🌐 Other Available Usernames", callback_data=f"explore_ids:{source}")],
+            [InlineKeyboardButton(text="ℹ️ Username Info", callback_data=f"asset_info:{source}")],
         ]
     )
 
@@ -82,7 +82,7 @@ def explore_ids_keyboard(current_bot_username: str, source: str) -> InlineKeyboa
         if asset.strip("@").lower() != current_bot_username.lower():
             clean_username = asset.strip("@")
             buttons.append([
-                InlineKeyboardButton(text=f"🔹 {asset} (Premium)", url=f"https://t.me/{clean_username}")
+                InlineKeyboardButton(text=f"🔹 {asset}", url=f"https://t.me/{clean_username}")
             ])
     buttons.append([InlineKeyboardButton(text="🔙 Back", callback_data=f"back:{source}")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -98,8 +98,8 @@ def change_offer_keyboard(source: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="✏️ Change Offer", callback_data="make_offer")],
-            [InlineKeyboardButton(text="🌐 Explore Other IDs", callback_data=f"explore_ids:{source}")],
-            [InlineKeyboardButton(text="ℹ️ Asset Info", callback_data=f"asset_info:{source}")]
+            [InlineKeyboardButton(text="🌐 Other Available Usernames", callback_data=f"explore_ids:{source}")],
+            [InlineKeyboardButton(text="ℹ️ Username Info", callback_data=f"asset_info:{source}")]
         ]
     )
 
@@ -149,10 +149,10 @@ async def finalize_and_notify(bot, user, bid_amount, contact_info, edit_msg_id=N
     if GROUP_CHAT_ID:
         logger.info("Attempting to notify Group Chat: %s", GROUP_CHAT_ID)
         alert_text = (
-            "📩 <b>New/Updated Bid Received</b>\n\n"
-            f"<b>Bot:</b> @{bot_user.username}\n"
-            f"<b>Buyer:</b> @{buyer_username} (ID: <code>{user.id}</code>)\n"
-            f"<b>Bid:</b> ${bid_amount:,.2f}\n"
+            "📩 <b>New Offer Alert</b>\n\n"
+            f"<b>Target:</b> @{bot_user.username}\n"
+            f"<b>Amount:</b> ${bid_amount:,.2f}\n"
+            f"<b>Buyer:</b> @{buyer_username} (<code>{user.id}</code>)\n"
             f"<b>Contact:</b> {formatted_contact}"
         )
         
@@ -227,11 +227,10 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
     await state.clear()
     bot_username = (await message.bot.get_me()).username
     text = (
-            f"🎯 <b>Digital Asset Acquisition & Brokerage</b>\n\n"
-            f"Asset: <b>@{bot_username}</b>\n\n"
-            "This bot and identity are managed by an independent third-party brokerage service contracted exclusively to facilitate the secure sale of this asset.\n\n"
-            "Submit your acquisition proposal or review your current standing below."
-        )
+    f"🎯 <b>@{bot_username} is for sale.</b>\n\n"
+    "This bot handles offers and negotiations directly.\n\n"
+    "Use the menu below to place your bid or check your current status."
+    )
     await message.answer(text, reply_markup=main_keyboard())
 
 @router.message(Command("my_bid"), F.chat.type == "private")
@@ -252,7 +251,7 @@ async def cmd_my_bid(message: Message, state: FSMContext) -> None:
         await message.answer(text, reply_markup=change_offer_keyboard(source="mybid"))
     else:
         await message.answer(
-            "You haven't made an offer yet! 🚀\n\nTap below to get started.", 
+            "No active bid found. Tap <b>Make an Offer</b> to get started.", 
             reply_markup=main_keyboard(source="nobid")
         )
 
@@ -262,12 +261,11 @@ async def cmd_about(message: Message, state: FSMContext) -> None:
     bot_username = (await message.bot.get_me()).username
     
     text = (
-        "🤖 <b>About This Broker Bot</b>\n\n"
-        f"This bot facilitates the secure acquisition of the <b>@{bot_username}</b> identity.\n\n"
-        "• <b>Secure:</b> All negotiations are confidential.\n"
-        "• <b>Direct:</b> You chat directly with the asset broker.\n"
-        "• <b>Professional:</b> Streamlined offer and counter-offer process.\n\n"
-        "Use /start to view the main menu, or /my_bid to check your current status."
+        "ℹ️ <b>How It Works</b>\n\n"
+        f"This bot is the dedicated sales channel for <b>@{bot_username}</b>.\n\n"
+        "1. Submit your numeric USD offer.\n"
+        "2. If your offer is reviewed, an admin will open a live chat here.\n"
+        "3. Agree on terms and finalize the handle transfer securely."
     )
     
     await message.answer(text)
@@ -278,12 +276,11 @@ async def cmd_support(message: Message, state: FSMContext) -> None:
     await state.clear()
     
     text = (
-        "🎧 <b>Broker Support</b>\n\n"
-        "Need assistance or prefer to negotiate directly? "
-        "Our broker is available to answer your questions.\n\n"
-        "✉️ <b>Email:</b> yousefbbk29@gmail.com\n"
-        "💬 <b>Telegram:</b> @Josebbk\n\n"
-        "<i>Please include your Telegram ID or current offer amount in your message so we can pull up your file.</i>"
+        "💬 <b>Contact Admin</b>\n\n"
+        "Have a question or need assistance ?\n\n"
+        "• <b>Telegram:</b> @josebbk\n"
+        "• <b>Email:</b> yousefbbk29@gmail.com\n\n"
+        "Include the target handle and your offer amount when reaching out so we can help you quickly."
     )
     await message.answer(text)
 
@@ -293,11 +290,11 @@ async def cb_asset_info(callback: CallbackQuery) -> None:
     bot_username = (await callback.bot.get_me()).username
     
     text = (
-        "ℹ️ <b>Asset Information</b>\n\n"
-        f"<b>Username:</b> @{bot_username}\n"
-        "<b>Status:</b> Accepting Offers\n"
-        "<b>Description:</b> Premium Telegram Identity.\n\n"
-        "Securely acquire this high-value asset via our premium brokerage platform."
+        "ℹ️ <b>Handle Information</b>\n\n"
+        f"• <b>Username:</b> @{bot_username}\n"
+        "• <b>Status:</b> Accepting Offers\n"
+        "• <b>Transfer:</b> Direct Telegram Username Transfer\n\n"
+        "Use the button below to submit your offer."
     )
     
     # 2. Build the keyboard dynamically
@@ -319,14 +316,13 @@ async def cb_back_routing(callback: CallbackQuery) -> None:
     
     if source == "start":
         text = (
-            f"🎯 <b>Digital Asset Escrow & Acquisition</b>\n\n"
-            f"Asset: <b>@{bot_user.username}</b>\n\n"
-            "This identity is managed under formal brokerage protocol. "
-            "Submit your acquisition proposal below or review your current standing."
+            f"🎯 <b>@{bot_user.username} is for sale.</b>\n\n"
+            "This bot handles offers and negotiations directly.\n\n"
+            "Use the menu below to place your bid or check your current status."
         )
         markup = main_keyboard(source="start")
     elif source == "nobid":
-        text = "You haven't made an offer yet! 🚀\n\nTap below to get started."
+        text = "No active bid found. Tap <b>Make an Offer</b> to get started."
         markup = main_keyboard(source="nobid")
     else:
         past_bid = get_user_bid(bot_user.username, callback.from_user.id)
@@ -373,11 +369,10 @@ async def cb_back_routing(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "back_to_main")
 async def cb_back_to_main(callback: CallbackQuery) -> None:
     text = (
-            f"🎯 <b>Digital Asset Acquisition & Brokerage</b>\n\n"
-            f"Asset: <b>@{bot_username}</b>\n\n"
-            "This bot and identity are managed by an independent third-party brokerage service contracted exclusively to facilitate the secure sale of this asset.\n\n"
-            "Submit your acquisition proposal or review your current standing below."
-        )
+    f"🎯 <b>@{bot_username} is for sale.</b>\n\n"
+    "This bot handles offers and negotiations directly.\n\n"
+    "Use the menu below to place your bid or check your current status."
+    )
     try:
         await callback.message.edit_text(text, reply_markup=main_keyboard())
     except TelegramBadRequest:
@@ -387,7 +382,7 @@ async def cb_back_to_main(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "make_offer")
 async def cb_make_offer(callback: CallbackQuery, state: FSMContext) -> None:
     bot_username = (await callback.bot.get_me()).username
-    await callback.message.answer("Please type your offer as a numerical amount in USD (e.g. 750).")
+    await callback.message.answer("Enter your offer in USD (e.g., 750):")
     await state.set_state(BidStates.waiting_for_bid)
     await callback.answer()
 
@@ -423,7 +418,7 @@ async def cb_start_negotiation(callback: CallbackQuery) -> None:
         # 4. Alert the Buyer
         await callback.bot.send_message(
             chat_id=buyer_chat_id,
-            text=f"🟢 <b>Live Chat Initiated</b>\n\nYou are now in a direct live chat with an admin regarding <b>@{bot_username}</b> Bot for {offer_str}.",
+            text=f"🟢 <b>Live Chat Initiated</b>\n\nYou are in a direct chat with an admin regarding <b>@{bot_username}</b> ({offer_str}).\n\nAny message you type here will be sent straight to the broker.",
             reply_markup=ReplyKeyboardRemove()
         )
 
@@ -435,7 +430,7 @@ async def cb_start_negotiation(callback: CallbackQuery) -> None:
         pin_msg = await callback.bot.send_message(
             chat_id=GROUP_CHAT_ID,
             message_thread_id=topic_id,
-            text=f"🔴 <b>LIVE CHAT ACTIVE</b> with {buyer_name} (ID: <code>{buyer_chat_id}</code>).\n\nAny message sent in this topic will be forwarded directly to the buyer's PM.",
+            text=f"🔴 <b>LIVE CHAT Initiated</b> — {buyer_name} (ID: <code>{buyer_chat_id}</code>)\n\nMessages typed in this topic are forwarded directly to the buyer's PM.",
             reply_markup=end_kb
         )
         
@@ -469,7 +464,7 @@ async def cb_end_negotiation(callback: CallbackQuery) -> None:
    # 3. Notify Buyer and Restore UI Menu
     await callback.bot.send_message(
         chat_id=buyer_chat_id,
-        text="🔴 <b>Negotiation Closed</b>\n\nThe broker has ended this live session. You may resume using the bot menus below.",
+        text="🔴 <b>Live Chat Ended</b>\n\nThe live chat has closed. Your offer remains on file. You can continue managing your offer using the menu below.",
         reply_markup=change_offer_keyboard(source="end_nego") # <-- Updated keyboard
     )
 
@@ -484,7 +479,7 @@ async def process_bid_amount(message: Message, state: FSMContext) -> None:
         if bid_amount < 0:
             raise ValueError
     except ValueError:
-        await message.answer("⚠️ Please enter a valid numeric amount (e.g. 750 or 12.50).")
+        await message.answer("⚠️ Enter a valid number in USD (e.g. 750 or 12.50).")
         return
 
     bot_username = (await message.bot.get_me()).username
@@ -499,11 +494,10 @@ async def process_bid_amount(message: Message, state: FSMContext) -> None:
     alert_msg_id = await finalize_and_notify(message.bot, message.from_user, bid_amount, contact_info)
 
     text = (
-        "✅ <b>Offer Registered Successfully!</b> 🎯\n\n"
-        f"Amount: <b>${bid_amount:,.2f}</b>\n"
+        f"✅ <b>Offer Received: ${bid_amount:,.2f}</b>\n\n"
+        "An admin has been notified.\n\n"
         "Your offer has been sent to the broker.\n\n"
-        "📞 <i>Optional:</i> If you want to provide a <b>phone number</b> or <b>email address</b> for faster contact, simply type it now.\n"
-        "<i>(Otherwise, you can ignore this or use the menu below.)</i>"
+        "<i>Optional: Reply with an email or phone number if you prefer contact outside Telegram.</i>"
     )
     
     # Store BOTH the bid amount and the alert message ID
@@ -525,7 +519,7 @@ async def process_contact_text(message: Message, state: FSMContext) -> None:
         await state.clear()
         if message.text.startswith("/"):
             return 
-        await message.answer("✅ Your offer remains active on Telegram. Let us know if you need anything else from the menu!")
+        await message.answer("✅ Offer active on Telegram. Use the menu below to navigate.")
         return
 
     data = await state.get_data()
@@ -535,7 +529,7 @@ async def process_contact_text(message: Message, state: FSMContext) -> None:
     # Pass the edit_msg_id to update the existing alert in place
     await finalize_and_notify(message.bot, message.from_user, bid_amount, contact_info, edit_msg_id=alert_msg_id)
     
-    await message.answer("✅ <b>Contact info updated successfully!</b> The broker has been notified with your new details.")
+    await message.answer("✅ <b>Contact info saved.</b> We'll reach out using this contact if needed.")
     await state.clear()
 
 
@@ -543,14 +537,9 @@ async def process_contact_text(message: Message, state: FSMContext) -> None:
 async def cb_asset_info_existing(callback: CallbackQuery) -> None:
     """Displays asset info with custom buttons for existing bidders."""
     text = (
-        "ℹ️ <b>Why This Asset Matters</b>\n\n"
-        "In the Web3 era, a premium Telegram/TON identity is more than a name — "
-        "it's a scarce, verifiable digital credential. Short, memorable identifiers "
-        "function like premium real estate: they signal legitimacy, are instantly "
-        "recognizable, and hold resale value as adoption of decentralized identity "
-        "grows.\n\n"
-        "Owning one means owning a piece of digital infrastructure that becomes "
-        "harder to acquire over time, not easier."
+        "ℹ️ <b>Username Value</b>\n\n"
+        f"<b>@{bot_username}</b> is a short, memorable Telegram handle.\n\n"
+        "Clean handles build trust, elevate brand identity, and retain long-term value across Telegram & TON ecosystem."
     )
     try:
         await callback.message.edit_text(text, reply_markup=asset_info_existing_keyboard())
@@ -582,10 +571,9 @@ async def cb_back_to_existing(callback: CallbackQuery) -> None:
     else:
         # Fallback to main menu if no past bid is found
         text = (
-            f"🎯 <b>Digital Asset Acquisition & Brokerage</b>\n\n"
-            f"Asset: <b>@{bot_username}</b>\n\n"
-            "This bot and identity are managed by an independent third-party brokerage service contracted exclusively to facilitate the secure sale of this asset.\n\n"
-            "Submit your acquisition proposal or review your current standing below."
+            f"🎯 <b>@{bot_username} is for sale.</b>\n\n"
+            "This bot handles offers and negotiations directly.\n\n"
+            "Use the menu below to place your bid or check your current status."
         )
         try:
             await callback.message.edit_text(text, reply_markup=main_keyboard())
@@ -599,8 +587,8 @@ async def cb_explore_ids(callback: CallbackQuery) -> None:
     source = callback.data.split(":")[1] if ":" in callback.data else "start"
     bot_user = await callback.bot.get_me()
     text = (
-        "🌐 <b>Premium Brokerage Inventory</b>\n\n"
-        "Explore our other high-value assets and premium TON infrastructure options below:"
+        "🌐 <b>Other Available Usernames</b>\n\n"
+        "Browse our portfolio of usernames open for acquisition:"
     )
     try:
         await callback.message.edit_text(text, reply_markup=explore_ids_keyboard(bot_user.username, source))
@@ -642,9 +630,9 @@ async def catch_all_messages(message: Message, state: FSMContext) -> None:
     else:
         # Default start layout for users who haven't bid yet
         text = (
-            f"Welcome! 🚀\n\n"
-            f"The asset <b>@{bot_username}</b> is currently accepting offers.\n\n"
-            f"Click below to make an offer or explore other options."
+            f"🎯 <b>@{bot_username} is for sale.</b>\n\n"
+            "This bot handles offers and negotiations directly.\n\n"
+            "Use the menu below to place your bid or check your current status."
         )
         await message.answer(text, reply_markup=main_keyboard(source="start"))
 
