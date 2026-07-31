@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>{{ title }}</title>
+    <meta name="description" content="{{ description }}">
+    
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:description" content="{{ description }}">
+    <meta property="og:type" content="website">
+
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/script.js" defer></script>
+</head>
+<body>
+
+  <header>
+    <div class="container nav-wrapper">
+      <a href="/" class="brand-logo"><span>✈️</span>BuyTelegramBots.com</a>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 900px; padding: 2.5rem 1rem; margin: 0 auto;">
+    
+    <a href="/" class="btn btn-back">
+      &larr; Back to Available Inventory
+    </a>
+
+    <div style="background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 2.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+            <h1 style="font-size: clamp(2rem, 4vw, 3.2rem); margin: 0; color: var(--text-main); line-height: 1.1;">{{ bot.handle }}</h1>
+            <span class="status-badge status-active" style="font-size: 0.9rem; padding: 6px 14px;">{{ bot.status }}</span>
+        </div>
+
+        <div style="display: flex; gap: 2.5rem; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color);">
+            <div>
+                <span style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Estimated Value</span>
+                <strong style="font-size: 1.5rem; color: var(--text-main);">{{ bot.est_value }}</strong>
+            </div>
+            <div>
+                <span style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Minimum Offer</span>
+                <strong style="font-size: 1.5rem; color: var(--text-main);">${{ bot.min_bid }}</strong>
+            </div>
+        </div>
+
+        <p style="font-size: 1.1rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 2.5rem;">
+            {{ bot.pitch }}
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 2rem; margin-bottom: 3rem; background: rgba(15, 23, 42, 0.6); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+          <!-- Added min-width: 0 here -->
+          <div style="min-width: 0;">
+              <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 0.5rem; display: inline-block;">
+                  Ideal Buyer Profile
+              </h3>
+              <!-- Added word-breaking properties here -->
+              <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-muted); font-size: 0.95rem; overflow-wrap: break-word; word-break: break-word;">
+                  {% for item in bot.ideal_for %}
+                  <li style="margin-bottom: 8px;">✓ {{ item }}</li>
+                  {% endfor %}
+              </ul>
+          </div>
+          
+          <!-- Added min-width: 0 here -->
+          <div style="min-width: 0;">
+              <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 0.5rem; display: inline-block;">
+                  Potential Use Cases
+              </h3>
+              <!-- Added word-breaking properties here -->
+              <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-muted); font-size: 0.95rem; overflow-wrap: break-word; word-break: break-word;">
+                  {% for item in bot.use_cases %}
+                  <li style="margin-bottom: 8px;">• {{ item }}</li>
+                  {% endfor %}
+              </ul>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+            <a href="{{ telegram_cta }}" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; max-width: 400px; font-size: 1.1rem; padding: 1rem; text-align: center;">
+                💬 Make Offer via Telegram
+            </a>
+            <button type="button" class="btn-webform-link" onclick="openOfferModal('{{ bot.handle }}')">
+                or submit via Web Form
+            </button>
+        </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 BuyTelegramBots.com — All rights reserved. Native transfer via @BotFather.</p>
+    </div>
+  </footer>
+
+  <dialog id="offerModal" class="modal-box">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <h3>Submit Offer for <span id="targetBotDisplay" class="highlight-blue">@Bot</span></h3>
+        <button type="button" class="close-btn" onclick="closeOfferModal()">×</button>
+      </div>
+      <p class="modal-instructions">
+        Don't have Telegram installed? Submit your bid and contact info below. Our broker will reach out via email or WhatsApp.
+      </p>
+      <form id="offerForm" onsubmit="handleFormSubmit(event)">
+        <input type="hidden" id="targetBotInput" name="bot_username" value="" />
+        <div class="form-group">
+          <label for="buyerName">Your Name or Organization</label>
+          <input type="text" id="buyerName" name="name" required placeholder="e.g., Alex Mercer" />
+        </div>
+        <div class="form-group">
+          <label for="buyerContact">Email, WhatsApp, or Telegram Handle</label>
+          <input type="text" id="buyerContact" name="contact" required placeholder="@username, name@mail.com, or +31 6 12345678" pattern="^(@[A-Za-z0-9_]{3,32}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?[0-9\s()-]{7,20})$" />
+          <span class="error-msg">Enter a valid Telegram handle (@username), email, or phone number.</span>
+        </div>
+        <div class="form-group">
+          <label for="bidAmount">Offer Amount (USD / USDT)</label>
+          <input type="number" id="bidAmount" name="bid" required placeholder="e.g., {{ bot.min_bid }}" min="100" step="1" />
+          <span class="error-msg">Bid must be a positive amount (Minimum $100).</span>
+        </div>
+        <div class="form-group">
+          <label for="buyerNotes">Additional Notes (Optional)</label>
+          <textarea id="buyerNotes" name="notes" rows="3" placeholder="Any specific terms or questions?"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeOfferModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Offer</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+</body>
+</html>
