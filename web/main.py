@@ -168,7 +168,7 @@ async def serve_bot_landing_page(request: Request, slug: str):
     if not bot:
         raise HTTPException(status_code=404, detail="Username not found")
 
-    title = f"Buy {bot['handle']} - Premium Telegram Username"
+    title = f"Buy {bot['handle']}"
     description = f"Acquire {bot['handle']} ({bot['category']}). {bot['pitch'][:120]}..."
     telegram_cta = f"https://t.me/{bot['raw_username']}"
 
