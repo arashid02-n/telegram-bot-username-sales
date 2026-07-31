@@ -6,7 +6,7 @@ DB_NAME = "bids.db"
 def init_db() -> None:
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # Your existing bids table creation stays exactly the same
+    
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS bids (
@@ -20,19 +20,21 @@ def init_db() -> None:
         )
         """
     )
-    # NEW: Chat History Table
+    
+    # NEW: Live Negotiations Table
     cursor.execute(
         """
-        CREATE TABLE IF NOT EXISTS chat_history (
+        CREATE TABLE IF NOT EXISTS negotiations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             bot_username TEXT,
             buyer_chat_id INTEGER,
-            sender_role TEXT, -- 'buyer' or 'admin'
-            message_text TEXT,
+            topic_id INTEGER,
+            status TEXT DEFAULT 'LIVE_CHAT',
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         """
     )
+    
     conn.commit()
     conn.close()
 
@@ -93,55 +95,6 @@ def get_user_bid(bot_username: str, buyer_chat_id: int):
     conn.close()
     return result
 
-# for the chat_history.db
-def save_chat_message(bot_username: str, buyer_chat_id: int, sender_role: str, message_text: str) -> None:
-    """Saves a message to the chat history."""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        INSERT INTO chat_history (bot_username, buyer_chat_id, sender_role, message_text)
-        VALUES (?, ?, ?, ?)
-        """, (bot_username, buyer_chat_id, sender_role, message_text)
-    )
-    conn.commit()
-    conn.close()
-
-def get_chat_history(bot_username: str, buyer_chat_id: int, limit: int = 10) -> list:
-    """Fetches history, specifically ignoring invisible system unlock tags."""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        SELECT sender_role, message_text, timestamp 
-        FROM (
-            SELECT sender_role, message_text, timestamp 
-            FROM chat_history 
-            WHERE bot_username = ? AND buyer_chat_id = ? AND sender_role != 'system_unlock'
-            ORDER BY timestamp DESC LIMIT ?
-        ) ORDER BY timestamp ASC
-        """, (bot_username, buyer_chat_id, limit)
-    )
-    result = cursor.fetchall()
-    conn.close()
-    return result
-
-def is_bid_locked(bot_username: str, buyer_chat_id: int) -> bool:
-    """Checks if the last action in the DB was an admin reply (Locked)."""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        SELECT sender_role 
-        FROM chat_history 
-        WHERE bot_username = ? AND buyer_chat_id = ? 
-          AND sender_role IN ('admin', 'system_unlock')
-        ORDER BY timestamp DESC LIMIT 1
-        """, (bot_username, buyer_chat_id)
-    )
-    result = cursor.fetchone()
-    conn.close()
-    return bool(result and result[0] == 'admin')
 
 def get_buyer_offer(bot_username: str, buyer_chat_id: int) -> str:
     """Fetches the latest offer amount from the buyer."""
@@ -162,17 +115,63 @@ def get_buyer_username(buyer_chat_id: int) -> str:
     cursor.execute("SELECT buyer_username FROM bids WHERE buyer_chat_id = ? ORDER BY id DESC LIMIT 1", (buyer_chat_id,))
     res = cursor.fetchone()
     conn.close()
-    return f"@{res[0]}" if res and res[0] else f"ID {buyer_chat_id}"
+    
+    # If the user has a real username, format it with @
+    if res and res[0] and res[0] != "N/A":
+        return f"@{res[0]}"
+    
+    return f"ID {buyer_chat_id}"
 
-def unlock_bid(bot_username: str, buyer_chat_id: int) -> None:
-    """Silently inserts a system marker to unlock the bid without deleting history."""
+
+
+def start_negotiation(bot_username: str, buyer_chat_id: int, topic_id: int) -> None:
+    """Closes any old sessions for this buyer and opens a new live chat."""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute(
+        "UPDATE negotiations SET status = 'CLOSED' WHERE bot_username = ? AND buyer_chat_id = ?",
+        (bot_username, buyer_chat_id)
+    )
+    cursor.execute(
         """
-        INSERT INTO chat_history (bot_username, buyer_chat_id, sender_role, message_text)
-        VALUES (?, ?, ?, ?)
-        """, (bot_username, buyer_chat_id, "system_unlock", "Offer unlocked.")
+        INSERT INTO negotiations (bot_username, buyer_chat_id, topic_id, status)
+        VALUES (?, ?, ?, 'LIVE_CHAT')
+        """, (bot_username, buyer_chat_id, topic_id)
+    )
+    conn.commit()
+    conn.close()
+
+def get_active_topic_for_buyer(bot_username: str, buyer_chat_id: int) -> int:
+    """Returns the topic_id if the buyer is in a live chat, otherwise None."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT topic_id FROM negotiations WHERE bot_username = ? AND buyer_chat_id = ? AND status = 'LIVE_CHAT'",
+        (bot_username, buyer_chat_id)
+    )
+    res = cursor.fetchone()
+    conn.close()
+    return res[0] if res else None
+
+def get_buyer_for_topic(bot_username: str, topic_id: int) -> int:
+    """Returns the buyer_chat_id bound to a specific topic."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT buyer_chat_id FROM negotiations WHERE bot_username = ? AND topic_id = ? AND status = 'LIVE_CHAT'",
+        (bot_username, topic_id)
+    )
+    res = cursor.fetchone()
+    conn.close()
+    return res[0] if res else None
+
+def close_negotiation(bot_username: str, buyer_chat_id: int) -> None:
+    """Marks the negotiation as CLOSED."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE negotiations SET status = 'CLOSED' WHERE bot_username = ? AND buyer_chat_id = ?",
+        (bot_username, buyer_chat_id)
     )
     conn.commit()
     conn.close()
