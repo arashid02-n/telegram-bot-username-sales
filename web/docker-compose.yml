@@ -1,0 +1,12 @@
+services:
+  buytelegrambots-web:
+    build: .
+    container_name: buytelegrambots-web
+
+    ports:
+      - "8005:8004"
+
+    env_file:
+      - .env
+
+    restart: unless-stopped
