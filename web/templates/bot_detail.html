@@ -50,23 +50,32 @@
             {{ bot.pitch }}
         </p>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem; background: rgba(15, 23, 42, 0.6); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-            <div>
-                <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 0.5rem; display: inline-block;">Ideal Buyer Profile</h3>
-                <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-muted); font-size: 0.95rem;">
-                    {% for item in bot.ideal_for %}
-                    <li style="margin-bottom: 8px;">✓ {{ item }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div>
-                <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 0.5rem; display: inline-block;">Potential Use Cases</h3>
-                <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-muted); font-size: 0.95rem;">
-                    {% for item in bot.use_cases %}
-                    <li style="margin-bottom: 8px;">• {{ item }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 2rem; margin-bottom: 3rem; background: rgba(15, 23, 42, 0.6); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+          <!-- Added min-width: 0 here -->
+          <div style="min-width: 0;">
+              <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 0.5rem; display: inline-block;">
+                  Ideal Buyer Profile
+              </h3>
+              <!-- Added word-breaking properties here -->
+              <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-muted); font-size: 0.95rem; overflow-wrap: break-word; word-break: break-word;">
+                  {% for item in bot.ideal_for %}
+                  <li style="margin-bottom: 8px;">✓ {{ item }}</li>
+                  {% endfor %}
+              </ul>
+          </div>
+          
+          <!-- Added min-width: 0 here -->
+          <div style="min-width: 0;">
+              <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 1rem; border-bottom: 2px solid var(--accent-blue); padding-bottom: 0.5rem; display: inline-block;">
+                  Potential Use Cases
+              </h3>
+              <!-- Added word-breaking properties here -->
+              <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-muted); font-size: 0.95rem; overflow-wrap: break-word; word-break: break-word;">
+                  {% for item in bot.use_cases %}
+                  <li style="margin-bottom: 8px;">• {{ item }}</li>
+                  {% endfor %}
+              </ul>
+          </div>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
@@ -83,7 +92,7 @@
 
   <footer>
     <div class="container">
-      <p>© 2026 BuyTelegramBots.com — All rights reserved.</p>
+      <p>© 2026 BuyTelegramBots.com — All rights reserved. Native transfer via @BotFather.</p>
     </div>
   </footer>
 
