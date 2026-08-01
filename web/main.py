@@ -59,65 +59,32 @@ def format_telegram_message(data: FormSubmission) -> str:
 
 
 def get_expanded_bot_data(slug: str):
-    """Loads bots.json and constructs expanded content for landing pages."""
+    """Loads bots_individual_pages.json and returns specific bot SEO page content."""
     try:
-        with open("bots.json", "r", encoding="utf-8") as f:
+        with open("bots_individual_pages.json", "r", encoding="utf-8") as f:
             bots = json.load(f)
     except Exception as e:
-        logging.error(f"Error reading bots.json: {e}")
+        logging.error(f"Error reading bots_individual_pages.json: {e}")
         return None
 
-    bot = next((b for b in bots if b["id"].lower() == slug.lower()), None)
+    bot = next((b for b in bots if b["slug"].lower() == slug.lower()), None)
     if not bot:
         return None
 
-    numeric_min_bid = "".join(c for c in bot.get("est_value", "100") if c.isdigit())
-    min_bid = int(numeric_min_bid) // 2 if numeric_min_bid else 100
-
-    use_cases_map = {
-        "Finance & Crypto": [
-            "Automated Trading & Signal Alerts",
-            "Portfolio Tracking & Wallet Notifications",
-            "OTC Escrow & Swap Automation"
-        ],
-        "Travel": [
-            "Flight Price Tracking & Alert System",
-            "Travel Deal Aggregation & Booking",
-            "Itinerary & Currency Conversion Assistant"
-        ],
-        "AI & Automation": [
-            "AI Chatbot & Prompt Interface",
-            "Workflow Automation & API Integration",
-            "Content Generation & Smart Summaries"
-        ],
-        "Utilities": [
-            "Unit & Currency Conversion Tool",
-            "Channel Management & Moderation Bot",
-            "Subscription & Payment Relay"
-        ]
-    }
-
-    ideal_for_map = {
-        "Finance & Crypto": ["Web3 Startups", "DeFi Protocols", "Crypto Traders"],
-        "Travel": ["Travel Agencies", "Flight Aggregators", "Digital Nomads"],
-        "AI & Automation": ["SaaS Founders", "AI Developers", "Productivity Techs"],
-        "Utilities": ["Community Managers", "Tool Developers", "Agency Owners"]
-    }
-
-    category = bot.get("category", "Utilities")
+    # Derive raw username for Telegram URL by stripping the leading '@' symbol from the handle
+    raw_username = bot.get("handle", "").lstrip("@")
 
     return {
-        "id": bot["id"],
-        "slug": bot["id"],
-        "handle": f"@{bot['username']}",
-        "raw_username": bot["username"],
-        "category": category,
-        "est_value": bot.get("est_value", "$500"),
-        "min_bid": min_bid,
+        "slug": bot["slug"],
+        "handle": bot["handle"],
+        "raw_username": raw_username,
+        "category": bot.get("category", "Utilities"),
         "status": bot.get("status", "Accepting Bids"),
-        "pitch": bot.get("desc", "High-value premium Telegram handle available for acquisition."),
-        "ideal_for": ideal_for_map.get(category, ["Digital Entrepreneurs", "Brand Owners"]),
-        "use_cases": use_cases_map.get(category, ["Brand Protection", "Direct Audience Redirect"])
+        "est_value": bot.get("est_value", "$500"),
+        "min_bid": bot.get("min_bid", "100"),
+        "pitch": bot.get("pitch", "High-value premium Telegram handle available for acquisition."),
+        "ideal_for": bot.get("ideal_for", []),
+        "use_cases": bot.get("use_cases", [])
     }
 
 

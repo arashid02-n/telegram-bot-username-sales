@@ -1,6 +1,11 @@
-# Git Ignore Rules
+# Python
+.venv/
 venv/
 __pycache__/
 *.pyc
+
+# Environment
 .env
+
+# macOS
 .DS_Store
