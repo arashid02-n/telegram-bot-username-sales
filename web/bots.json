@@ -6,7 +6,7 @@
     "est_value": "$2,500",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Premier brand handle ideal for Telegram username auctions, NFT marketplaces, and bid automation tools."
+    "desc": "A short, auction-native handle built for anything centered on bidding or automated market activity — the clearest fit on this marketplace for an auction platform, NFT marketplace, or bid-automation tool that wants its name to say exactly what it does."
   },
   {
     "id": "tradegramsbot",
@@ -15,7 +15,7 @@
     "est_value": "$1,800",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "High-value brand handle for crypto trading signals, portfolio tracking, and Telegram exchange bots."
+    "desc": "A plain-language handle for anything built around active trading — signal alerts, exchange integrations, or portfolio tools aimed at traders who want a bot name they'll remember without explanation."
   },
   {
     "id": "flightticketbot",
@@ -24,7 +24,7 @@
     "est_value": "$1,500",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Exact-match premium handle ideal for flight aggregators, ticket booking, and travel alert bots."
+    "desc": "An exact-match handle for flight search and booking — the kind of literal, self-explanatory name that shortens the distance between a user finding your bot and understanding what it does."
   },
   {
     "id": "thataicoachbot",
@@ -33,7 +33,7 @@
     "est_value": "$1,200",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Trendy brand handle tailored for personal AI coaching, fitness mentoring, and automated advice bots."
+    "desc": "A conversational, personality-forward handle suited to AI coaching, mentoring, or advice tools — the \"That ___ Bot\" naming pattern reads as approachable rather than clinical, which matters for anything positioned as a personal assistant."
   },
   {
     "id": "gramiumbot",
@@ -42,7 +42,7 @@
     "est_value": "$950",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Sleek, Web3-native brand handle ideal for TON ecosystem protocols, yield vaults, or DeFi bots."
+    "desc": "A sleek, invented-word handle with a \"-ium\" suffix that reads as engineered and Web3-native — a fit for TON ecosystem projects, yield products, or DeFi tools that want a name with technical weight rather than a literal description."
   },
   {
     "id": "gramancebot",
@@ -51,7 +51,7 @@
     "est_value": "$850",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Catchy portmanteau brand perfect for crypto exchange interfaces, peer-to-peer trading, or community bots."
+    "desc": "A portmanteau handle (gram + \"-ance\") with an easy, community-friendly sound — a fit for peer-to-peer trading tools or exchange-facing bots that want a name that's memorable without sounding purely transactional."
   },
   {
     "id": "onegrambot",
@@ -60,7 +60,7 @@
     "est_value": "$650",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Minimalist handle suitable for gold-backed tokens, micro-tipping services, or single-unit crypto transfers."
+    "desc": "A minimal, single-unit handle well suited to gold-backed token products or micro-payment tools where the name itself communicates the unit of value being tracked or transferred."
   },
   {
     "id": "mygramsbot",
@@ -69,7 +69,7 @@
     "est_value": "$550",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Intuitive user-facing handle ideal for personal wallet tracking, balance management, and asset dashboards."
+    "desc": "A personal, user-facing handle (\"My___\") suited to wallet tracking or personal dashboard tools — a name that signals this is about your holdings, not a shared or institutional service."
   },
   {
     "id": "freegramsbot",
@@ -78,7 +78,7 @@
     "est_value": "$500",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "High-demand viral handle tailored for crypto faucets, reward programs, and promotional referral bots."
+    "desc": "A high-recall, reward-flavored handle suited to faucets, giveaways, and referral programs — the word \"free\" front-loads exactly the kind of engagement this type of bot depends on."
   },
   {
     "id": "milligrambot",
@@ -87,7 +87,7 @@
     "est_value": "$400",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Versatile handle for scientific metric unit conversions or micro-transaction crypto payments."
+    "desc": "A precise, scientific-metric handle suited to unit-conversion tools or micro-transaction bots — \"milli\" signals small-scale precision, which fits both a lab-conversion tool and a small-value crypto payment bot equally well."
   },
   {
     "id": "dollarstogramsbot",
@@ -96,7 +96,7 @@
     "est_value": "$350",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Clear conversion handle for USD-to-Gram/TON pricing, gold calculations, and fiat gateways."
+    "desc": "A fully spelled-out conversion handle that leaves no ambiguity about function — ideal for a USD-to-Gram/TON pricing tool, a gold-value calculator, or any fiat-to-crypto gateway that wants its name to double as its own explanation."
   },
   {
     "id": "eurostogramsbot",
@@ -105,7 +105,7 @@
     "est_value": "$300",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Targeted conversion handle for EUR currency exchanges, gold pricing calculators, and European crypto gateways."
+    "desc": "The Euro counterpart to a dollar-conversion handle — a direct fit for European fiat-to-crypto gateways and gold-pricing tools that want a currency-specific name rather than a generic one."
   },
   {
     "id": "poundstogramsbot",
@@ -114,7 +114,7 @@
     "est_value": "$280",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Dual-purpose converter handle ideal for mass unit conversion (lbs to g) or GBP-to-crypto exchanges."
+    "desc": "A dual-purpose handle that reads equally well as a mass-unit converter (lbs to grams) or a GBP-to-crypto exchange tool — useful if you're not yet sure which audience you're building for."
   },
   {
     "id": "bitcoin2grambot",
@@ -123,7 +123,7 @@
     "est_value": "$250",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Direct utility handle for instant BTC-to-TON/Gram cross-chain swaps and exchange rate bots."
+    "desc": "A direct, function-first handle for BTC-to-TON/Gram cross-chain conversion — the numeral \"2\" keeps it short without sacrificing clarity, which matters for a tool users will type or search for by name."
   },
   {
     "id": "dollars2gramsbot",
@@ -132,7 +132,7 @@
     "est_value": "$180",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Shortened variant handle for USD exchange tracking, fiat on-ramps, and quick conversion tools."
+    "desc": "A shorter numeral variant of the full \"DollarsToGrams\" name — a good fit if you want the same USD conversion clarity in a slightly more compact, easier-to-type handle."
   },
   {
     "id": "euros2gramsbot",
@@ -141,7 +141,7 @@
     "est_value": "$150",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Alternative shorthand handle for Euro exchange rate updates and quick fiat-to-crypto calculations."
+    "desc": "The compact numeral variant of the Euro conversion handle — shorter and quicker to type than the full-word version, while keeping the same EUR-to-crypto clarity."
   },
   {
     "id": "pound2grambot",
@@ -150,7 +150,7 @@
     "est_value": "$140",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Compact unit conversion handle for recipe measurements, weight calculations, or currency conversion."
+    "desc": "A compact unit-conversion handle that works equally well for recipe or weight measurement bots or GBP currency tools — small, generic, and easy to repurpose."
   },
   {
     "id": "grams4freebot",
@@ -159,6 +159,6 @@
     "est_value": "$120",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "Casual reward-focused handle suitable for promotional giveaways, community air-drops, and micro-tasks."
+    "desc": "A casual, reward-flavored handle suited to small-scale giveaways, community airdrops, or simple micro-task bots — priced as an accessible entry point into this marketplace."
   }
 ]
