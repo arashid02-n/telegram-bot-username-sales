@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadBotInventory() {
   try {
-    const response = await fetch('bots.json');
+    const response = await fetch('bots.json?v=' + Date.now());
     if (!response.ok) throw new Error('Could not load bots.json');
     
     allBotsData = await response.json();
