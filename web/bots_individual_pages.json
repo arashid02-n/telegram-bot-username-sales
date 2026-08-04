@@ -6,16 +6,16 @@
     "status": "Accepting Bids",
     "est_value": "$2,500",
     "min_bid": "1700",
-    "pitch": "A top-tier infrastructure handle for Telegram's secondary market. Direct exact-match keywords make this the premier identity for any platform facilitating username trades, TON auctions, or Fragment automated bidding tools.",
+    "pitch": "A short, auction-native handle built for anything centered on bidding or automated market activity — the clearest fit on this marketplace for an auction platform, NFT marketplace, or bid-automation tool that wants its name to say exactly what it does.",
     "ideal_for": [
-      "Telegram Marketplace Developers",
-      "NFT & Username Escrow Services",
-      "Automated Fragment Bidding Tools"
+      "Web3 startups building auction or bidding platforms",
+      "NFT marketplaces needing a bid-related brand handle",
+      "DeFi teams launching automated market-making tools"
     ],
     "use_cases": [
-      "Real-time bid tracking and outbid alerts for Telegram handles",
-      "Non-custodial escrow and trading interface for digital assets",
-      "Automated sniper bot for Fragment auctions"
+      "Live auction and bidding coordination",
+      "Automated trading and signal alerts",
+      "Portfolio tracking and wallet notifications"
     ]
   },
   {
@@ -25,16 +25,16 @@
     "status": "Accepting Bids",
     "est_value": "$1,800",
     "min_bid": "1200",
-    "pitch": "A high-value, brandable handle perfectly positioned for the decentralized finance and crypto trading space. The inclusion of 'Grams' strongly ties into the TON ecosystem, providing immediate trust and recognition for users looking to trade, swap, or track crypto assets natively within Telegram.",
+    "pitch": "A plain-language handle for anything built around active trading — signal alerts, exchange integrations, or portfolio tools aimed at traders who want a bot name they'll remember without explanation.",
     "ideal_for": [
-      "Crypto Trading Signal Providers",
-      "DeFi Protocol Developers",
-      "Web3 Portfolio Trackers"
+      "Crypto traders launching a signals or alerts bot",
+      "Exchange platforms needing a trading-facing handle",
+      "DeFi protocols building portfolio-tracking tools"
     ],
     "use_cases": [
-      "Peer-to-peer crypto swapping interface",
-      "Real-time token price alerts and charting",
-      "Automated portfolio rebalancing"
+      "Crypto trading signals and price alerts",
+      "Portfolio and wallet balance tracking",
+      "Exchange integration and order notifications"
     ]
   },
   {
@@ -44,16 +44,16 @@
     "status": "Accepting Bids",
     "est_value": "$1,500",
     "min_bid": "1000",
-    "pitch": "This exact-match premium handle instantly establishes authority in the travel sector. It is highly searchable and memorable, making it the ultimate namespace for flight aggregators, automated ticket booking services, and travel alert communities looking to dominate the Telegram ecosystem.",
+    "pitch": "An exact-match handle for flight search and booking — the kind of literal, self-explanatory name that shortens the distance between a user finding your bot and understanding what it does.",
     "ideal_for": [
-      "Flight Aggregator Businesses",
-      "Travel Agencies & Brokers",
-      "Deal-Hunting Communities"
+      "Travel agencies launching a Telegram-based booking channel",
+      "Flight aggregators wanting a search- or fare-facing bot name",
+      "Tools built for digital nomads and frequent flyers"
     ],
     "use_cases": [
-      "Automated ticket booking via Telegram WebApps",
-      "Push notifications for flash flight sales",
-      "AI-driven travel concierge services"
+      "Flight price tracking and fare-drop alerts",
+      "Travel deal aggregation and booking",
+      "Itinerary management and currency conversion"
     ]
   },
   {
@@ -63,16 +63,16 @@
     "status": "Accepting Bids",
     "est_value": "$1,200",
     "min_bid": "800",
-    "pitch": "An exceptionally conversational and modern handle capitalizing on consumer AI trends. Perfect for personal growth platforms, fitness mentoring, or productivity assistants looking for an approachable consumer brand inside Telegram Mini Apps.",
+    "pitch": "A conversational, personality-forward handle suited to AI coaching, mentoring, or advice tools — the \"That ___ Bot\" naming pattern reads as approachable rather than clinical, which matters for anything positioned as a personal assistant.",
     "ideal_for": [
-      "AI Startups & Founders",
-      "Personal Development Brands",
-      "Fitness & Life Coaching Platforms"
+      "SaaS founders launching an AI coaching or mentoring product",
+      "AI developers building a personal-assistant chatbot",
+      "Fitness or productivity brands wanting a friendly bot name"
     ],
     "use_cases": [
-      "24/7 AI-driven conversational life coaching",
-      "Automated workout and meal plan generation",
-      "Daily habit tracking and accountability reminders"
+      "AI chatbot and prompt-based coaching interface",
+      "Workflow automation and API integration",
+      "Content generation and daily summaries"
     ]
   },
   {
@@ -82,16 +82,16 @@
     "status": "Accepting Bids",
     "est_value": "$950",
     "min_bid": "600",
-    "pitch": "A sleek, Web3-native single-word brand handle. Sounds like an established protocol or token, making it ideal for TON-based yield aggregators, staking vaults, or DeFi utilities wanting institutional appeal.",
+    "pitch": "A sleek, invented-word handle with a \"-ium\" suffix that reads as engineered and Web3-native — a fit for TON ecosystem projects, yield products, or DeFi tools that want a name with technical weight rather than a literal description.",
     "ideal_for": [
-      "TON Ecosystem Projects",
-      "DeFi Staking & Yield Vaults",
-      "Web3 Infrastructure Teams"
+      "TON ecosystem protocols wanting a native-sounding handle",
+      "DeFi teams launching a yield or vault product",
+      "Web3 startups that prefer an invented brand name over a literal one"
     ],
     "use_cases": [
-      "Automated yield farming management for TON tokens",
-      "Token distribution and staking dashboard",
-      "Decentralized liquidity management bot"
+      "Yield vault and staking notifications",
+      "Automated trading and signal alerts",
+      "Portfolio and wallet balance tracking"
     ]
   },
   {
@@ -101,16 +101,16 @@
     "status": "Accepting Bids",
     "est_value": "$850",
     "min_bid": "550",
-    "pitch": "A clever portmanteau blending 'Gram' and 'Finance', immediately signaling financial authority within the Telegram ecosystem. Highly memorable for trading terminals, exchange gateways, or Web3 banking tools.",
+    "pitch": "A portmanteau handle (gram + \"-ance\") with an easy, community-friendly sound — a fit for peer-to-peer trading tools or exchange-facing bots that want a name that's memorable without sounding purely transactional.",
     "ideal_for": [
-      "Crypto Exchange Startups",
-      "DeFi Aggregators",
-      "Crypto Payment Gateway Providers"
+      "Peer-to-peer trading platforms wanting a friendly brand name",
+      "Crypto exchanges launching a community or support bot",
+      "DeFi teams that want a name distinct from generic finance terms"
     ],
     "use_cases": [
-      "In-Telegram crypto trading terminal and order execution",
-      "Cross-chain swap aggregator",
-      "Crypto payroll and invoice management"
+      "Peer-to-peer trading coordination",
+      "Exchange interface and order notifications",
+      "Community trading group management"
     ]
   },
   {
@@ -120,16 +120,16 @@
     "status": "Accepting Bids",
     "est_value": "$650",
     "min_bid": "400",
-    "pitch": "Clean, minimalist handle with strong financial connotations. Highly adaptable for gold-backed digital assets, micro-tipping networks, or simplified single-click micro-transfer services on Telegram.",
+    "pitch": "A minimal, single-unit handle well suited to gold-backed token products or micro-payment tools where the name itself communicates the unit of value being tracked or transferred.",
     "ideal_for": [
-      "Gold-Backed Crypto Projects",
-      "Micro-Tipping Platforms",
-      "Peer-to-Peer Payment Networks"
+      "Gold-backed token projects wanting a literal unit-based name",
+      "Micro-tipping or micro-payment platforms",
+      "Web3 teams building single-unit transfer tools"
     ],
     "use_cases": [
-      "Instant micro-payments and tipping within group chats",
-      "Physical gold spot price tracking and tokenized trading",
-      "One-click TON transfer widget"
+      "Gold-backed token price tracking",
+      "Micro-tipping and small-value transfers",
+      "Single-unit crypto conversion alerts"
     ]
   },
   {
@@ -139,16 +139,16 @@
     "status": "Accepting Bids",
     "est_value": "$550",
     "min_bid": "350",
-    "pitch": "An intuitive, user-centric namespace for personal account management. Ideal for portfolio dashboards, wallet balances, or asset tracking tools where user ownership is the central theme.",
+    "pitch": "A personal, user-facing handle (\"My___\") suited to wallet tracking or personal dashboard tools — a name that signals this is about your holdings, not a shared or institutional service.",
     "ideal_for": [
-      "Non-Custodial Wallet Apps",
-      "Portfolio Tracking Services",
-      "Personal Asset Management Tools"
+      "Personal wallet-tracking apps wanting a user-facing name",
+      "DeFi teams building individual balance dashboards",
+      "Crypto tools focused on personal, not institutional, users"
     ],
     "use_cases": [
-      "Unified crypto and NFT portfolio overview inside Telegram",
-      "Customizable wallet activity and transaction alerts",
-      "Personal asset vault and balance checker"
+      "Personal wallet and balance tracking",
+      "Asset dashboard summaries and alerts",
+      "Multi-wallet portfolio management"
     ]
   },
   {
@@ -158,16 +158,16 @@
     "status": "Accepting Bids",
     "est_value": "$500",
     "min_bid": "300",
-    "pitch": "High-conversion viral handle built for community engagement and user acquisition. Naturally attracts search traffic from users looking for crypto rewards, airdrops, and promotional incentive programs.",
+    "pitch": "A high-recall, reward-flavored handle suited to faucets, giveaways, and referral programs — the word \"free\" front-loads exactly the kind of engagement this type of bot depends on.",
     "ideal_for": [
-      "Crypto Reward Programs",
-      "Airdrop & Referral Marketers",
-      "Web3 Gaming & Quest Platforms"
+      "Community managers running reward or giveaway programs",
+      "Tool developers building a crypto faucet bot",
+      "Agency owners launching promotional referral campaigns"
     ],
     "use_cases": [
-      "Automated token faucet distribution for new crypto projects",
-      "Social task verification for community giveaways",
-      "Referral tracking and reward payout system"
+      "Reward and giveaway distribution",
+      "Referral program tracking",
+      "Promotional airdrop management"
     ]
   },
   {
@@ -177,16 +177,16 @@
     "status": "Accepting Bids",
     "est_value": "$400",
     "min_bid": "250",
-    "pitch": "Dual-purpose utility handle combining precise metric weight conversions with micro-transaction crypto branding. Offers clear utility for calculation tools or micro-scale payment bots.",
+    "pitch": "A precise, scientific-metric handle suited to unit-conversion tools or micro-transaction bots — \"milli\" signals small-scale precision, which fits both a lab-conversion tool and a small-value crypto payment bot equally well.",
     "ideal_for": [
-      "Utility Tool Developers",
-      "Micro-Payment Protocols",
-      "Scientific Calculation Apps"
+      "Tool developers building a metric/unit conversion bot",
+      "Community managers needing a lightweight utility name",
+      "Crypto teams building micro-transaction or micro-payment tools"
     ],
     "use_cases": [
-      "Precision unit and weight conversion calculator",
-      "Micro-fractional token transfer terminal",
-      "Lab and measurement converter for students"
+      "Scientific and metric unit conversion",
+      "Micro-transaction crypto payments",
+      "Quick calculator and reference tools"
     ]
   },
   {
@@ -196,16 +196,16 @@
     "status": "Accepting Bids",
     "est_value": "$350",
     "min_bid": "220",
-    "pitch": "Unambiguous, clear conversion handle for USD to digital asset or precious metal pricing. Perfect for fiat-onramp gateways, exchange rate calculators, or precious metal tracking.",
+    "pitch": "A fully spelled-out conversion handle that leaves no ambiguity about function — ideal for a USD-to-Gram/TON pricing tool, a gold-value calculator, or any fiat-to-crypto gateway that wants its name to double as its own explanation.",
     "ideal_for": [
-      "Fiat-to-Crypto Onramps",
-      "Precious Metal Traders",
-      "Currency Exchange Bots"
+      "Fiat-to-crypto gateways needing a self-explanatory name",
+      "TON ecosystem tools pricing in USD",
+      "Gold or commodity pricing calculators"
     ],
     "use_cases": [
-      "Real-time USD to TON/Gram rate calculator",
-      "Gold and silver spot price monitoring against the US Dollar",
-      "Fiat purchase calculator for Telegram WebApps"
+      "USD-to-Gram/TON price conversion",
+      "Gold value calculation",
+      "Fiat on-ramp and gateway alerts"
     ]
   },
   {
@@ -215,16 +215,16 @@
     "status": "Accepting Bids",
     "est_value": "$300",
     "min_bid": "180",
-    "pitch": "Geographically targeted conversion handle serving European users and cross-border currency traders. Clear branding for EUR fiat gateways and metal pricing.",
+    "pitch": "The Euro counterpart to a dollar-conversion handle — a direct fit for European fiat-to-crypto gateways and gold-pricing tools that want a currency-specific name rather than a generic one.",
     "ideal_for": [
-      "European Crypto Gateways",
-      "Euro Currency Brokers",
-      "Gold & Bullion Trackers"
+      "European crypto gateways pricing in EUR",
+      "Gold or commodity calculators serving EU markets",
+      "TON ecosystem tools targeting Euro-denominated users"
     ],
     "use_cases": [
-      "EUR to crypto conversion rate ticker and calculator",
-      "European precious metal price monitoring",
-      "Cross-border payment estimate tool"
+      "EUR-to-Gram/TON price conversion",
+      "European currency exchange alerts",
+      "Gold pricing calculations in Euros"
     ]
   },
   {
@@ -234,16 +234,16 @@
     "status": "Accepting Bids",
     "est_value": "$280",
     "min_bid": "170",
-    "pitch": "Highly functional conversion handle serving both mass unit conversions (lbs to g) and GBP currency conversions into crypto/precious metals.",
+    "pitch": "A dual-purpose handle that reads equally well as a mass-unit converter (lbs to grams) or a GBP-to-crypto exchange tool — useful if you're not yet sure which audience you're building for.",
     "ideal_for": [
-      "Unit Conversion Services",
-      "UK-Focused Crypto Gateways",
-      "Fitness & Culinary Apps"
+      "Tool developers building a weight/mass conversion bot",
+      "UK-based crypto tools pricing in GBP",
+      "Community managers wanting a general-purpose converter"
     ],
     "use_cases": [
-      "Weight conversion utility (Pounds to Grams) for recipes and fitness",
-      "GBP to TON token exchange rate calculator",
-      "Precious metal spot price tracking in British Pounds"
+      "Mass unit conversion (pounds to grams)",
+      "GBP-to-crypto exchange rate alerts",
+      "General measurement and reference tools"
     ]
   },
   {
@@ -253,16 +253,16 @@
     "status": "Accepting Bids",
     "est_value": "$250",
     "min_bid": "150",
-    "pitch": "Direct utility handle targeting cross-chain transactions between Bitcoin and the TON ecosystem. Great for automated bridge notifications or swap services.",
+    "pitch": "A direct, function-first handle for BTC-to-TON/Gram cross-chain conversion — the numeral \"2\" keeps it short without sacrificing clarity, which matters for a tool users will type or search for by name.",
     "ideal_for": [
-      "Cross-Chain Bridge Protocols",
-      "Crypto Exchange Integrators",
-      "Arbitrage Bot Developers"
+      "Cross-chain swap tools converting BTC to TON/Gram",
+      "Exchange rate bots tracking Bitcoin pairs",
+      "DeFi protocols building bridge or swap products"
     ],
     "use_cases": [
-      "BTC to TON/Gram cross-chain swap calculator",
-      "Automated exchange rate monitoring between BTC and TON",
-      "Cross-chain transaction status tracking"
+      "Instant BTC-to-TON/Gram cross-chain swaps",
+      "Exchange rate tracking and alerts",
+      "Cross-chain bridge notifications"
     ]
   },
   {
@@ -272,16 +272,16 @@
     "status": "Accepting Bids",
     "est_value": "$180",
     "min_bid": "100",
-    "pitch": "Shorthand variant for USD-to-crypto/metal conversions. Perfect budget-friendly handle for developers offering fast conversion tools or price ticker bots.",
+    "pitch": "A shorter numeral variant of the full \"DollarsToGrams\" name — a good fit if you want the same USD conversion clarity in a slightly more compact, easier-to-type handle.",
     "ideal_for": [
-      "Price Ticker Developers",
-      "Budget Fiat Gateway Apps",
-      "Currency Converter Tools"
+      "USD exchange tracking tools wanting a compact handle",
+      "Fiat on-ramp products needing a short, typeable name",
+      "Quick-conversion tools aimed at mobile-first users"
     ],
     "use_cases": [
-      "Quick USD to Gram conversion tool",
-      "Fiat valuation ticker for Web3 portfolios",
-      "Telegram inline query converter"
+      "USD exchange rate tracking",
+      "Fiat on-ramp notifications",
+      "Quick currency-to-crypto conversion"
     ]
   },
   {
@@ -291,16 +291,16 @@
     "status": "Accepting Bids",
     "est_value": "$150",
     "min_bid": "90",
-    "pitch": "Compact variant handle tailored for Euro conversion utilities. Excellent choice for lightweight price check tools or inline conversion bots.",
+    "pitch": "The compact numeral variant of the Euro conversion handle — shorter and quicker to type than the full-word version, while keeping the same EUR-to-crypto clarity.",
     "ideal_for": [
-      "Inline Bot Developers",
-      "European FX Tickers",
-      "Niche Conversion Tools"
+      "EUR exchange rate tools wanting a compact handle",
+      "Fiat-to-crypto calculators aimed at mobile-first users",
+      "European crypto gateways needing a short, typeable name"
     ],
     "use_cases": [
-      "Inline price checking (EUR to TON/Gram) in chats",
-      "Automated daily Euro exchange updates",
-      "Quick metal unit valuation in Euros"
+      "Euro exchange rate updates",
+      "Quick fiat-to-crypto calculations",
+      "Compact conversion alerts"
     ]
   },
   {
@@ -310,16 +310,16 @@
     "status": "Accepting Bids",
     "est_value": "$140",
     "min_bid": "80",
-    "pitch": "Shortened unit conversion handle suited for quick metric calculations, recipe scaling, or GBP-to-crypto pricing queries.",
+    "pitch": "A compact unit-conversion handle that works equally well for recipe or weight measurement bots or GBP currency tools — small, generic, and easy to repurpose.",
     "ideal_for": [
-      "Recipe & Culinary Tool Developers",
-      "Fitness Weight Converters",
-      "UK Price Tickers"
+      "Recipe or cooking bots needing a weight-conversion name",
+      "Tool developers building a general measurement utility",
+      "Small GBP-to-crypto conversion tools"
     ],
     "use_cases": [
-      "Instant mass unit conversion tool for chats",
-      "Recipe weight adjustment assistant",
-      "GBP exchange calculation utility"
+      "Recipe measurement conversion",
+      "Weight and mass calculations",
+      "Basic currency conversion"
     ]
   },
   {
@@ -329,16 +329,16 @@
     "status": "Accepting Bids",
     "est_value": "$120",
     "min_bid": "70",
-    "pitch": "Informal reward handle designed for social giveaways, community faucet drops, micro-tasking rewards, and promotional campaign bots.",
+    "pitch": "A casual, reward-flavored handle suited to small-scale giveaways, community airdrops, or simple micro-task bots — priced as an accessible entry point into this marketplace.",
     "ideal_for": [
-      "Community Reward Managers",
-      "Micro-Tasking Platforms",
-      "Viral Promotional Campaigns"
+      "Community managers running small giveaway campaigns",
+      "Tool developers building a lightweight airdrop bot",
+      "Agency owners testing a promotional micro-task tool"
     ],
     "use_cases": [
-      "Task-based reward distribution bot",
-      "Social media sharing incentive system",
-      "Telegram group engagement giveaway management"
+      "Community giveaways and airdrops",
+      "Micro-task distribution and rewards",
+      "Promotional engagement campaigns"
     ]
   }
 ]
