@@ -26,7 +26,7 @@
       <nav class="main-nav">
         <a href="#inventory" class="nav-link">Catalog</a>
         <a href="#faq" class="nav-link">FAQ</a>
-        <a href="javascript:void(0)" class="nav-link" onclick="openAboutModal()">About Us</a>
+        <a href="javascript:void(0)" class="nav-link" onclick="openAboutModal()">Contact Us</a>
     </div>
   </header>
 
@@ -190,11 +190,11 @@
             id="buyerContact" 
             name="contact" 
             required 
-            placeholder="@username, name@mail.com, or +31 6 12345678"
-            pattern="^(@[A-Za-z0-9_]{3,32}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?[0-9\s()-]{7,20})$"
-            title="Must be a Telegram handle starting with '@', a valid email address, or a phone number."
+            placeholder="name@mail.com, or +31 6 12345678"
+            pattern="^([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?[0-9\s()-]{7,20})$"
+            title="Must be a valid email address, or a phone number."
           />
-          <span class="error-msg">Enter a valid Telegram handle (@username), email, or phone number.</span>
+          <span class="error-msg">Enter a valid email or phone number.</span>
         </div>
 
         <div class="form-group">
@@ -210,7 +210,7 @@
             step="1"
             title="Offers must be a positive number of at least $100."
           />
-          <span class="error-msg">Bid must be a positive amount (Minimum $100).</span>
+          <span class="error-msg">Bid must be a positive amount (Minimum $100) with no decimals.</span>
         </div>
 
         <div class="form-group">
@@ -250,7 +250,7 @@
 
         <h4 class="contact-heading">Contact Our Brokers Directly</h4>
         <div class="contact-channel-grid">
-          <a href="https://t.me/josebbk" target="_blank" rel="noopener" class="btn btn-primary">
+          <a href="https://t.me/buytelegrambots_supportbot" target="_blank" rel="noopener" class="btn btn-primary">
             ✈️ Message on Telegram
           </a>
           <a href="mailto:support@buytelegrambots.com" class="btn btn-secondary">
