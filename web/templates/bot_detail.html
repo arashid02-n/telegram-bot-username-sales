@@ -13,6 +13,25 @@
 
     <link rel="stylesheet" href="/styles.css" />
     <script src="/script.js" defer></script>
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": "{{ bot.handle }}",
+        "description": "{{ bot.pitch }}",
+        "category": "{{ bot.category }}",
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "USD",
+          "price": "{{ bot.min_bid }}",
+          "availability": "https://schema.org/InStock",
+          "url": "https://buytelegrambots.com/{{ bot.slug }}"
+        }
+      }
+    </script>
+
 </head>
 <body>
 
