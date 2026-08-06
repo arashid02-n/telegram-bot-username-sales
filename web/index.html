@@ -22,20 +22,25 @@
       <a href="#" class="brand-logo">
         <span>✈️</span>BuyTelegramBots.com
       </a>
+
+      <nav class="main-nav">
+        <a href="#inventory" class="nav-link">Catalog</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+        <a href="javascript:void(0)" class="nav-link" onclick="openAboutModal()">Contact Us</a>
     </div>
   </header>
 
   <!-- HERO SECTION (Now placed outside of <main> to prevent double padding) -->
   <section class="hero-section">
     <div class="hero-content">
-      <span class="badge-pill">Verified Telegram Marketplace</span>
+      <span class="badge-pill">Telegram Marketplace</span>
       
       <h1 class="hero-title">
         <span class="highlight"> Buy </span> Telegram <span class="highlight">Bots</span> & <span class="highlight">Usernames</span>
       </h1>
       
       <p class="hero-subtitle">
-        A curated marketplace for high-value Telegram handles and bots — reviewed for ownership, transferred natively via @BotFather, negotiated directly with our team.
+        A marketplace for for high-value Telegram handles and bots<br> Ready for sale.
       </p>
       
       <div class="cta-group">
@@ -78,6 +83,50 @@
         <!-- After a username is sold, in the "bots.json" file >> status: "Sold", status_code: "pending" -->
     </section>
 
+    <section id="faq" class="faq-section container">
+      <div class="section-header">
+          <h2 class="section-title">Frequently Asked Questions</h2>
+          <p class="section-subtitle">Everything you need to know about safely acquiring a Telegram handle.</p>
+      </div>
+      
+      <div class="faq-grid">
+        <details class="faq-item" name="faq-accordion">
+          <summary class="faq-question">How are Telegram handles transferred to me?</summary>
+          <div class="faq-answer">
+            <p>All transfers are performed natively within Telegram via <code>@BotFather</code>. Once terms are finalized, ownership rights are transferred directly to your account. No external apps or third-party credential sharing required.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item" name="faq-accordion">
+          <summary class="faq-question">What payment methods do you accept?</summary>
+          <div class="faq-answer">
+            <p>We accept USDT (TRC-20 / BEP-20 / TON network), Crypto (BTC, ETH, TON), and major fiat payment options upon request for verified corporate buyers.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item" name="faq-accordion">
+          <summary class="faq-question">Are these bot handles verified and free of restrictions?</summary>
+          <div class="faq-answer">
+            <p>Yes. Every handle listed in our catalog is manually reviewed and verified by our team to ensure it is actively held, clean, and free of any Telegram platform restrictions or bans.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item" name="faq-accordion">
+          <summary class="faq-question">How long does the transfer process take after my offer is accepted?</summary>
+          <div class="faq-answer">
+            <p>Transfers via <code>@BotFather</code> take less than 15 minutes once payment terms are confirmed. Our team guides you step-by-step through the process in real time.</p>
+          </div>
+        </details>
+        
+        <details class="faq-item" name="faq-accordion">
+          <summary class="faq-question">What happens if I submit an offer via the web form?</summary>
+          <div class="faq-answer">
+            <p>If you don't use Telegram directly, our team still receives your submission instantly and reaches out via your provided email or WhatsApp within 1 business day.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
   </main>
 
   <!-- HOW IT WORKS GUIDE MODAL -->
@@ -99,7 +148,7 @@
         </div>
         <div class="guide-step">
           <h4>3. Submit your offer</h4>
-          <p>Message our team directly on Telegram, or use the on-page form if you'd rather not install the app. Either way, a real person reviews every offer.</p>
+          <p>Message our team directly on Telegram using the bot itself, or use the on-page form if you'd rather not install the app. Either way, a real person reviews every offer.</p>
         </div>
         <div class="guide-step">
           <h4>4. Transfer, once your offer is accepted</h4>
@@ -141,11 +190,11 @@
             id="buyerContact" 
             name="contact" 
             required 
-            placeholder="@username, name@mail.com, or +31 6 12345678"
-            pattern="^(@[A-Za-z0-9_]{3,32}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?[0-9\s()-]{7,20})$"
-            title="Must be a Telegram handle starting with '@', a valid email address, or a phone number."
+            placeholder="name@mail.com, or +31 6 12345678"
+            pattern="^([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?[0-9\s()-]{7,20})$"
+            title="Must be a valid email address, or a phone number."
           />
-          <span class="error-msg">Enter a valid Telegram handle (@username), email, or phone number.</span>
+          <span class="error-msg">Enter a valid email or phone number.</span>
         </div>
 
         <div class="form-group">
@@ -161,7 +210,7 @@
             step="1"
             title="Offers must be a positive number of at least $100."
           />
-          <span class="error-msg">Bid must be a positive amount (Minimum $100).</span>
+          <span class="error-msg">Bid must be a positive amount (Minimum $100) with no decimals.</span>
         </div>
 
         <div class="form-group">
@@ -177,12 +226,57 @@
     </div>
   </dialog>
 
+  <dialog id="aboutModal" class="modal-box">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <h3>About <span class="highlight-blue">Our Brokerage</span></h3>
+        <button type="button" class="close-btn" onclick="closeAboutModal()">×</button>
+      </div>
+
+      <div class="guide-content">
+        <div class="broker-pitch">
+          <p><strong>BuyTelegramBots.com</strong> is a specialized digital asset brokerage. We are entrusted by developers, creators, and web3 projects to securely manage the sale of their high-value Telegram handles and bots.</p>
+        </div>
+
+        <div class="guide-step">
+          <h4>🛡️ Verified Inventory</h4>
+          <p>We do not own these assets; we represent the creators. We manually audit every handle to ensure the seller has full ownership and a clean title before it reaches our catalog.</p>
+        </div>
+        
+        <div class="guide-step">
+          <h4>🤝 Secure Handover</h4>
+          <p>Our team facilitates the entire negotiation and ensures a coordinated, safe transfer via Telegram's native <code>@BotFather</code>.</p>
+        </div>
+
+        <h4 class="contact-heading">Contact Our Brokers Directly</h4>
+        <div class="contact-channel-grid">
+          <a href="https://t.me/buytelegrambots_supportbot" target="_blank" rel="noopener" class="btn btn-primary">
+            ✈️ Message on Telegram
+          </a>
+          <a href="mailto:support@buytelegrambots.com" class="btn btn-secondary">
+            ✉ Email Support
+          </a>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeAboutModal()">Close</button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- FOOTER -->
   <footer>
     <div class="container">
-      <p>© 2026 BuyTelegramBots.com — All rights reserved. Native transfer via @BotFather.</p>
+      <p>© 2026 BuyTelegramBots.com — All rights reserved.</p>
     </div>
   </footer>
+
+  <button id="backToTopBtn" class="back-to-top-btn" aria-label="Back to top" title="Back to top">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+  </button>
 
 </body>
 </html>

@@ -5,11 +5,12 @@ import httpx
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # Load environment variables
 load_dotenv()
@@ -120,6 +121,35 @@ async def handle_form_submission(form_data: FormSubmission):
 
     return {"status": "success", "message": "Request delivered to team group chat."}
 
+# Dynamic Sitemap & Robots.txt (Crucial for Google)
+@app.get("/robots.txt", response_class=Response)
+async def robots_txt():
+    content = """User-agent: *
+Allow: /
+Sitemap: https://buytelegrambots.com/sitemap.xml
+"""
+    return Response(content=content, media_type="text/plain")
+
+@app.get("/sitemap.xml", response_class=Response)
+async def sitemap_xml():
+    try:
+        with open("bots.json", "r", encoding="utf-8") as f:
+            bots = json.load(f)
+    except Exception:
+        bots = []
+
+    urls_xml = "".join(
+        f"<url><loc>https://buytelegrambots.com/{bot['id']}</loc><changefreq>weekly</changefreq></url>"
+        for bot in bots
+    )
+    
+    sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemapindex.org/schemas/sitemap/0.9">
+    <url><loc>https://buytelegrambots.com/</loc><changefreq>daily</changefreq></url>
+    {urls_xml}
+</urlset>"""
+    return Response(content=sitemap_content, media_type="application/xml")
+
 
 @app.get("/{slug}", response_class=HTMLResponse)
 async def serve_bot_landing_page(request: Request, slug: str):
@@ -150,6 +180,12 @@ async def serve_bot_landing_page(request: Request, slug: str):
         }
     )
 
+# Custom 404 Error Page
+@app.exception_handler(StarletteHTTPException)
+async def custom_404_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        return templates.TemplateResponse(request=request, name="404.html", status_code=404)
+    return HTMLResponse(content=str(exc.detail), status_code=exc.status_code)
 
 # Serve root index.html and static files
 app.mount("/", StaticFiles(directory=".", html=True), name="static")

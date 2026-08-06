@@ -1,3 +1,4 @@
+```javascript
 // ==========================================
 // DYNAMIC BOT LOADER & MODAL CONTROLLER
 // ==========================================
@@ -13,6 +14,7 @@ const assetGrid = document.getElementById('assetGrid');
 document.addEventListener('DOMContentLoaded', () => {
   loadBotInventory();
   setupCategoryFilters();
+  setupBackToTop();
 });
 
 async function loadBotInventory() {
@@ -51,7 +53,7 @@ function renderBotCards(bots) {
         </div>
 
         <h3 class="bot-handle">
-          <a href="/${bot.id}" style="text-decoration: none; color: inherit;">@${bot.username}</a>
+          <a href="/${bot.id}" class="handle-link">@${bot.username}</a>
         </h3>
         <p class="bot-desc">${bot.desc}</p>
 
@@ -65,6 +67,7 @@ function renderBotCards(bots) {
             <span class="meta-value">@BotFather</span>
           </div>
         </div>
+
         <div class="card-actions">
           <a href="https://t.me/${bot.username}?start=website" target="_blank" rel="noopener" class="btn-telegram">
             💬 Make Offer on Telegram
@@ -198,22 +201,6 @@ async function handleFormSubmit(event) {
   }
 }
 
-// Light dismiss: Close modal if user clicks backdrop
-if (modal) {
-  modal.addEventListener('click', (event) => {
-    const rect = modal.getBoundingClientRect();
-    const isInDialog = (
-      rect.top <= event.clientY &&
-      event.clientY <= rect.top + rect.height &&
-      rect.left <= event.clientX &&
-      event.clientX <= rect.left + rect.width
-    );
-    if (!isInDialog && typeof closeOfferModal === 'function') {
-      closeOfferModal();
-    }
-  });
-}
-
 // Guide Modal Handling
 const guideModal = document.getElementById('guideModal');
 
@@ -225,16 +212,45 @@ function closeGuideModal() {
   if (guideModal) guideModal.close();
 }
 
-// Light dismiss for guide modal
-if (guideModal) {
-  guideModal.addEventListener('click', (event) => {
-    const rect = guideModal.getBoundingClientRect();
-    const isInDialog = (
-      rect.top <= event.clientY &&
-      event.clientY <= rect.top + rect.height &&
-      rect.left <= event.clientX &&
-      event.clientX <= rect.left + rect.width
-    );
-    if (!isInDialog) closeGuideModal();
+// --- 4. BACK TO TOP BUTTON CONTROLLER ---
+function setupBackToTop() {
+  const backToTopBtn = document.getElementById('backToTopBtn');
+  if (!backToTopBtn) return;
+
+  const SCROLL_THRESHOLD = 300; // Shows button after scrolling down 300px
+
+  const toggleButtonVisibility = () => {
+    if (window.scrollY > SCROLL_THRESHOLD) {
+      backToTopBtn.classList.add('visible');
+    } else {
+      backToTopBtn.classList.remove('visible');
+    }
+  };
+
+  // Check scroll position on load
+  toggleButtonVisibility();
+
+  // Passive scroll listener for smooth performance
+  window.addEventListener('scroll', toggleButtonVisibility, { passive: true });
+
+  // Scroll smoothly to top on click
+  backToTopBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevents any default instant jump
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   });
 }
+
+// About Modal Handling
+const aboutModal = document.getElementById('aboutModal');
+
+function openAboutModal() {
+  if (aboutModal) aboutModal.showModal();
+}
+
+function closeAboutModal() {
+  if (aboutModal) aboutModal.close();
+}
+```
