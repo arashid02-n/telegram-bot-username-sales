@@ -585,3 +585,278 @@ footer {
   color: var(--text-main); 
   border-color: var(--accent-blue); /* Highlights in Telegram blue on hover */
 }
+
+/* ==========================================
+   BACK TO TOP BUTTON STYLES
+   ========================================== */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 99;
+  
+  /* Initial hidden state with smooth transition */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px) scale(0.9);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.3s ease,
+              background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+  
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Shown when scrolled past threshold */
+.back-to-top-btn.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* Hover & Focus State */
+.back-to-top-btn:hover,
+.back-to-top-btn:focus-visible {
+  background-color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #ffffff;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(34, 158, 217, 0.4);
+  outline: none;
+}
+
+/* Click/Tap State */
+.back-to-top-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* Mobile & Small Screen Responsive Adjustments */
+@media (max-width: 600px) {
+  .back-to-top-btn {
+    bottom: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ==========================================
+   USERNAME HANDLE HOVER ANIMATION
+   ========================================== */
+.handle-link {
+    text-decoration: none;
+    color: var(--text-main);
+    position: relative;
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+/* The sliding underline setup */
+.handle-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--accent-blue);
+    transform-origin: bottom right;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Hover state changes */
+.handle-link:hover {
+    color: var(--accent-blue);
+}
+
+.handle-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+/* ==========================================
+   HEADER NAVIGATION STYLES
+   ========================================== */
+.main-nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: var(--text-main);
+}
+
+/* ==========================================
+   FAQ SECTION STYLES
+   ========================================== */
+.faq-section {
+    padding: 60px 0;
+    max-width: 800px; /* Narrower width for easier reading */
+    margin: 0 auto;
+}
+
+.faq-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Base styling for the accordion card */
+.faq-item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.faq-item:hover {
+    border-color: #475569;
+}
+
+/* The clickable question */
+.faq-question {
+    padding: 20px 24px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    list-style: none; /* Hides default triangle */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+/* Hide default marker in Safari/Chrome */
+.faq-question::-webkit-details-marker {
+    display: none; 
+}
+
+/* Custom animated '+' icon */
+.faq-question::after {
+    content: '+';
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--accent-blue);
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* State when accordion is OPEN */
+.faq-item[open] .faq-question {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Turn '+' into 'x' when opened */
+.faq-item[open] .faq-question::after {
+    transform: rotate(45deg); 
+}
+
+/* The expanding text area */
+.faq-answer {
+    padding: 20px 24px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    background-color: rgba(15, 23, 42, 0.3); /* Very subtle inset shadow effect */
+}
+
+.faq-answer code {
+    background-color: var(--bg-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-blue);
+}
+
+/* Mobile & Tablet Responsive Adjustments */
+@media (max-width: 640px) {
+    .main-nav {
+        gap: 1rem;
+    }
+    
+    .nav-link {
+        font-size: 0.9rem;
+    }
+
+    .faq-question {
+        font-size: 0.95rem;
+        padding: 16px 20px;
+    }
+    
+    .faq-answer {
+        padding: 16px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+
+/* ==========================================
+   ABOUT MODAL SPECIFIC STYLES
+   ========================================== */
+.broker-pitch {
+    background-color: rgba(34, 158, 217, 0.05); /* Very subtle blue tint */
+    border-left: 3px solid var(--accent-blue);
+    padding: 16px;
+    margin-bottom: 24px;
+    border-radius: 0 8px 8px 0;
+}
+
+.broker-pitch p {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.broker-pitch strong {
+    color: var(--text-main);
+}
+
+.contact-heading {
+    font-size: 1rem;
+    margin: 32px 0 16px;
+    color: var(--text-main);
+    border-top: 1px solid var(--border-color);
+    padding-top: 24px;
+}
+
+.contact-channel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Force buttons inside the grid to fill the space and look uniform */
+.contact-channel-grid .btn {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+}
+
+@media (max-width: 600px) {
+    .contact-channel-grid {
+        grid-template-columns: 1fr;
+    }
+}

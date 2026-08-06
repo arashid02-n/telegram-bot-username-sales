@@ -6,7 +6,7 @@
     "est_value": "$2,500",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A short, auction-native handle built for anything centered on bidding or automated market activity — the clearest fit on this marketplace for an auction platform, NFT marketplace, or bid-automation tool that wants its name to say exactly what it does."
+    "desc": "Best For: Auction & Bidding Platforms. Built for auction tools, NFT marketplaces, and automated bidding systems."
   },
   {
     "id": "tradegramsbot",
@@ -15,7 +15,7 @@
     "est_value": "$1,800",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A plain-language handle for anything built around active trading — signal alerts, exchange integrations, or portfolio tools aimed at traders who want a bot name they'll remember without explanation."
+    "desc": "Best For: Crypto Traders & Signal Bots. A trading-ready handle for signal alerts, portfolios, and exchange bots."
   },
   {
     "id": "flightticketbot",
@@ -24,7 +24,7 @@
     "est_value": "$1,500",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "An exact-match handle for flight search and booking — the kind of literal, self-explanatory name that shortens the distance between a user finding your bot and understanding what it does."
+    "desc": "Best For: Flight Search & Booking Tools. An exact-match name for flight aggregators, booking, and fare alerts."
   },
   {
     "id": "thataicoachbot",
@@ -33,7 +33,7 @@
     "est_value": "$1,200",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A conversational, personality-forward handle suited to AI coaching, mentoring, or advice tools — the \"That ___ Bot\" naming pattern reads as approachable rather than clinical, which matters for anything positioned as a personal assistant."
+    "desc": "Best For: AI Coaching & Assistant Bots. A friendly handle for AI coaching, mentoring, and personal-assistant tools."
   },
   {
     "id": "gramiumbot",
@@ -42,7 +42,7 @@
     "est_value": "$950",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A sleek, invented-word handle with a \"-ium\" suffix that reads as engineered and Web3-native — a fit for TON ecosystem projects, yield products, or DeFi tools that want a name with technical weight rather than a literal description."
+    "desc": "Best For: TON Ecosystem & DeFi Projects. An engineered, Web3-native name for yield vaults and DeFi tools."
   },
   {
     "id": "gramancebot",
@@ -51,7 +51,7 @@
     "est_value": "$850",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A portmanteau handle (gram + \"-ance\") with an easy, community-friendly sound — a fit for peer-to-peer trading tools or exchange-facing bots that want a name that's memorable without sounding purely transactional."
+    "desc": "Best For: P2P Trading & Exchange Tools. A catchy portmanteau built for peer-to-peer trading and exchange bots."
   },
   {
     "id": "onegrambot",
@@ -60,7 +60,7 @@
     "est_value": "$650",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A minimal, single-unit handle well suited to gold-backed token products or micro-payment tools where the name itself communicates the unit of value being tracked or transferred."
+    "desc": "Best For: Gold-Backed & Micro-Payment Tools. A minimal name for gold-backed tokens and single-unit transfers."
   },
   {
     "id": "mygramsbot",
@@ -69,7 +69,7 @@
     "est_value": "$550",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A personal, user-facing handle (\"My___\") suited to wallet tracking or personal dashboard tools — a name that signals this is about your holdings, not a shared or institutional service."
+    "desc": "Best For: Personal Wallet Tracking Apps. A personal, user-facing name for wallet tracking and balance dashboards."
   },
   {
     "id": "freegramsbot",
@@ -78,7 +78,7 @@
     "est_value": "$500",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A high-recall, reward-flavored handle suited to faucets, giveaways, and referral programs — the word \"free\" front-loads exactly the kind of engagement this type of bot depends on."
+    "desc": "Best For: Giveaways & Referral Programs. A high-recall name built for faucets, rewards, and referral campaigns."
   },
   {
     "id": "milligrambot",
@@ -87,7 +87,7 @@
     "est_value": "$400",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A precise, scientific-metric handle suited to unit-conversion tools or micro-transaction bots — \"milli\" signals small-scale precision, which fits both a lab-conversion tool and a small-value crypto payment bot equally well."
+    "desc": "Best For: Unit Conversion & Micro-Payments. A precise handle for metric conversions and micro-transaction tools."
   },
   {
     "id": "dollarstogramsbot",
@@ -96,7 +96,7 @@
     "est_value": "$350",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A fully spelled-out conversion handle that leaves no ambiguity about function — ideal for a USD-to-Gram/TON pricing tool, a gold-value calculator, or any fiat-to-crypto gateway that wants its name to double as its own explanation."
+    "desc": "Best For: USD-to-Crypto Conversion Tools. A self-explanatory name for USD-to-Gram/TON pricing and fiat gateways."
   },
   {
     "id": "eurostogramsbot",
@@ -105,7 +105,7 @@
     "est_value": "$300",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "The Euro counterpart to a dollar-conversion handle — a direct fit for European fiat-to-crypto gateways and gold-pricing tools that want a currency-specific name rather than a generic one."
+    "desc": "Best For: EUR-to-Crypto Conversion Tools. The Euro counterpart, built for EUR pricing calculators and crypto gateways."
   },
   {
     "id": "poundstogramsbot",
@@ -114,7 +114,7 @@
     "est_value": "$280",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A dual-purpose handle that reads equally well as a mass-unit converter (lbs to grams) or a GBP-to-crypto exchange tool — useful if you're not yet sure which audience you're building for."
+    "desc": "Best For: Weight Conversion & GBP Tools. A dual-purpose name for mass conversion or GBP exchange tools."
   },
   {
     "id": "bitcoin2grambot",
@@ -123,7 +123,7 @@
     "est_value": "$250",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A direct, function-first handle for BTC-to-TON/Gram cross-chain conversion — the numeral \"2\" keeps it short without sacrificing clarity, which matters for a tool users will type or search for by name."
+    "desc": "Best For: BTC-to-TON Cross-Chain Swaps. A direct name for instant BTC-to-TON/Gram swap and bridge tools."
   },
   {
     "id": "dollars2gramsbot",
@@ -132,7 +132,7 @@
     "est_value": "$180",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A shorter numeral variant of the full \"DollarsToGrams\" name — a good fit if you want the same USD conversion clarity in a slightly more compact, easier-to-type handle."
+    "desc": "Best For: Quick USD Conversion Tools. A compact variant built for USD tracking and fast fiat conversion."
   },
   {
     "id": "euros2gramsbot",
@@ -141,7 +141,7 @@
     "est_value": "$150",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "The compact numeral variant of the Euro conversion handle — shorter and quicker to type than the full-word version, while keeping the same EUR-to-crypto clarity."
+    "desc": "Best For: Quick EUR Conversion Tools. A compact variant built for Euro rate updates and fast conversion."
   },
   {
     "id": "pound2grambot",
@@ -150,7 +150,7 @@
     "est_value": "$140",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A compact unit-conversion handle that works equally well for recipe or weight measurement bots or GBP currency tools — small, generic, and easy to repurpose."
+    "desc": "Best For: Recipe & Weight Conversion. A compact name for measurement, weight, and light currency conversion."
   },
   {
     "id": "grams4freebot",
@@ -159,6 +159,6 @@
     "est_value": "$120",
     "status": "Accepting Bids",
     "status_code": "active",
-    "desc": "A casual, reward-flavored handle suited to small-scale giveaways, community airdrops, or simple micro-task bots — priced as an accessible entry point into this marketplace."
+    "desc": "Best For: Small Giveaways & Airdrops. An accessible entry point for community airdrops and micro-rewards."
   }
 ]

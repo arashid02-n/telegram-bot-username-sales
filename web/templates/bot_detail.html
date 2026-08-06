@@ -13,6 +13,25 @@
 
     <link rel="stylesheet" href="/styles.css" />
     <script src="/script.js" defer></script>
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": "{{ bot.handle }}",
+        "description": "{{ bot.pitch }}",
+        "category": "{{ bot.category }}",
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "USD",
+          "price": "{{ bot.min_bid }}",
+          "availability": "https://schema.org/InStock",
+          "url": "https://buytelegrambots.com/{{ bot.slug }}"
+        }
+      }
+    </script>
+
 </head>
 <body>
 
@@ -92,7 +111,7 @@
 
   <footer>
     <div class="container">
-      <p>© 2026 BuyTelegramBots.com — All rights reserved. Native transfer via @BotFather.</p>
+      <p>© 2026 BuyTelegramBots.com — All rights reserved.</p>
     </div>
   </footer>
 
@@ -112,14 +131,14 @@
           <input type="text" id="buyerName" name="name" required placeholder="e.g., Alex Mercer" />
         </div>
         <div class="form-group">
-          <label for="buyerContact">Email, WhatsApp, or Telegram Handle</label>
-          <input type="text" id="buyerContact" name="contact" required placeholder="@username, name@mail.com, or +31 6 12345678" pattern="^(@[A-Za-z0-9_]{3,32}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?[0-9\s()-]{7,20})$" />
-          <span class="error-msg">Enter a valid Telegram handle (@username), email, or phone number.</span>
+          <label for="buyerContact">Best way to reach you</label>
+          <input type="text" id="buyerContact" name="contact" required placeholder="name@mail.com, or +31 6 12345678" pattern="^([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?[0-9\s()-]{7,20})$" />
+          <span class="error-msg">Enter a valid email or phone number.</span>
         </div>
         <div class="form-group">
           <label for="bidAmount">Offer Amount (USD / USDT)</label>
           <input type="number" id="bidAmount" name="bid" required placeholder="e.g., {{ bot.min_bid }}" min="100" step="1" />
-          <span class="error-msg">Bid must be a positive amount (Minimum $100).</span>
+          <span class="error-msg">Bid must be a positive amount (Minimum $100) without decimals.</span>
         </div>
         <div class="form-group">
           <label for="buyerNotes">Additional Notes (Optional)</label>
