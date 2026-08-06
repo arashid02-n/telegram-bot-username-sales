@@ -67,10 +67,10 @@ async def cmd_support(message: Message, state: FSMContext) -> None:
     await state.clear()
     
     text = (
-        "💬 <b>Contact Admin</b>\n\n"
+        "💬 <b>Contact Us</b>\n\n"
         "Have a question or need assistance ?\n\n"
-        "• <b>Telegram:</b> @josebbk\n"
-        "• <b>Email:</b> yousefbbk29@gmail.com\n\n"
+        "• <b>Telegram:</b> @buytelegrambots_supportbot\n"
+        "• <b>Email:</b> support@buytelegrambots.com\n\n"
         "Include the target handle and your offer amount when reaching out so we can help you quickly."
     )
     await message.answer(text)
