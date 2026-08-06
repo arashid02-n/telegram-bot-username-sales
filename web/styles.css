@@ -792,8 +792,18 @@ footer {
 
 /* Mobile & Tablet Responsive Adjustments */
 @media (max-width: 640px) {
+    
+    /* 1. ADDED: Forces the logo and navigation to stack vertically */
+    .nav-wrapper {
+        flex-direction: column; 
+        gap: 15px; 
+    }
+
+    /* 2. UPDATED: Allows the links to wrap if they run out of space */
     .main-nav {
         gap: 1rem;
+        flex-wrap: wrap; 
+        justify-content: center; 
     }
     
     .nav-link {
