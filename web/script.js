@@ -1,4 +1,3 @@
-```javascript
 // ==========================================
 // DYNAMIC BOT LOADER & MODAL CONTROLLER
 // ==========================================
@@ -19,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadBotInventory() {
   try {
-    const response = await fetch('bots.json?v=' + Date.now());
+    const response = await fetch('bots.json');
     if (!response.ok) throw new Error('Could not load bots.json');
     
     allBotsData = await response.json();
@@ -67,7 +66,6 @@ function renderBotCards(bots) {
             <span class="meta-value">@BotFather</span>
           </div>
         </div>
-
         <div class="card-actions">
           <a href="https://t.me/${bot.username}?start=website" target="_blank" rel="noopener" class="btn-telegram">
             💬 Make Offer on Telegram
@@ -253,4 +251,3 @@ function openAboutModal() {
 function closeAboutModal() {
   if (aboutModal) aboutModal.close();
 }
-```
