@@ -22,4 +22,8 @@ telegram-bot-username-sales/
 * **web/** — Web management interface
 * **docs/** — Project documentation
 
-> Documentation is under active development.
+> Documentation is under active development for further improvement.
+
+## Developed & Maintained by:
+* **Rashid Nazari: https://github.com/arashid02-n**
+* **Yousef Babaki: https://github.com/josebbk**
