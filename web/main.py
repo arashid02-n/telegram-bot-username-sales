@@ -143,8 +143,9 @@ async def sitemap_xml():
         for bot in bots
     )
     
+    # Notice the corrected 'sitemaps.org' namespace below
     sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemapindex.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url><loc>https://buytelegrambots.com/</loc><changefreq>daily</changefreq></url>
     {urls_xml}
 </urlset>"""
