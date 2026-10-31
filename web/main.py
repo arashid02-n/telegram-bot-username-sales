@@ -24,7 +24,7 @@ app = FastAPI(title="BuyTelegramBots Marketplace")
 templates = Jinja2Templates(directory="templates")
 
 # The ONLY folder whose files visitors may download (index.html, styles.css, ...).
-# Everything else in web/ (.env, main.py, Dockerfile, templates) stays private.
+# Everything else in web/ (.env, main.py, templates, ...) stays private.
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")

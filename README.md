@@ -8,6 +8,7 @@ A monorepo containing the Telegram Bot and Web Management System for the Telegra
 telegram-bot-username-sales/
 ├── bot/
 ├── web/
+├── deploy/
 ├── docs/
 │   ├── PROJECT_SPEC.md
 │   └── PROMPTS.md
@@ -20,6 +21,7 @@ telegram-bot-username-sales/
 
 * **bot/** — Telegram Bot application
 * **web/** — Web management interface
+* **deploy/** — Copies of the production systemd service files (`buytelegrambots-web`, `gram-bid-system`)
 * **docs/** — Project documentation
 
 > Documentation is under active development for further improvement.

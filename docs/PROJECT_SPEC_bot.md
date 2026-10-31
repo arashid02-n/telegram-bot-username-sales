@@ -6,7 +6,7 @@ A multi-tenant Telegram bot system designed to broker, manage, and help negotiat
 ## 2. Tech Stack & Architecture
 * **Language & Runtime:** Python 3.x (`asyncio`)
 * **Bot Framework:** `aiogram` 3.x (Modular Routers, FSM with `MemoryStorage`, Inline Keyboards, Custom Filters)
-* **Database:** SQLite 3 (`bids.db` with `bids` and active negotiation topic tracking)
+* **Database:** SQLite 3 (`bot/bids.db` with `bids` and active negotiation topic tracking). The path is absolute (resolved from `database.py`'s own folder, overridable with `DB_PATH` in `bot/.env`), so the same file is used no matter which folder the bot is started from.
 * **Environment & Config:** `python-dotenv` (`load_dotenv`), `os`, `sys`, `logging`
 * **Text Formatting & Parsing:** Regex (`re`) for email/phone validation, HTML Parse Mode for Telegram messages
 * **Project Structure:** Modularized architecture grouped by domain:
@@ -34,7 +34,8 @@ A multi-tenant Telegram bot system designed to broker, manage, and help negotiat
 5. **Negotiation Process - Buyer Side:** The Bot gives a notice that it has `initiated Live Mode` and any message sent here will be redirected to the admin. Standard bot routing is suspended in this state until the admin clicks `End Negotiation` inside the topic.
 
 ## 5. Expressed Non-Goals / Things to Avoid
-* **No Webhooks / REST APIs:** Relying on webhooks is avoided in favor of long-polling (`dp.start_polling`) with automatic webhook purging on launch.
+* **No Webhooks / REST APIs:** Relying on webhooks is avoided in favor of long-polling (`dp.start_polling`) with automatic webhook removal on launch. Pending updates are **kept** (`drop_pending_updates=False`): messages buyers sent while the bot was down or restarting are answered when it comes back (Telegram holds them up to 24h). Do not switch this back to `True`.
+* **Production:** runs as the systemd service `gram-bid-system` (definition in `deploy/gram-bid-system.service`); see `PROJECT_SPEC_deployment.md`.
 * **No Destructive Database Mutations:** Avoid deleting records or dropping tables when modifying offer statuses.
 * **No External Cache / Complex Storage:** Avoid Redis or external message brokers; stick to lightweight, in-memory storage (`MemoryStorage`) and direct SQLite queries.
 * **No Over-Engineering:** While the codebase is modularized for maintainability and separated by routing concerns, avoid heavy OOP patterns, ORMs, microservice architectures, or unnecessary abstraction layers. Keep database functions and router logic direct and readable.

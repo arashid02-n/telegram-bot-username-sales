@@ -1,0 +1,17 @@
+# Copy of /etc/systemd/system/gram-bid-system.service on the production server.
+# The 18 Telegram sales bots (bot/main.py). "gram-bid-system" is the project's
+# original name; the service keeps it. Keep this file identical to the server's copy.
+# bot/.env is read by the bot itself (python-dotenv); no secrets here.
+[Unit]
+Description=Gram Bid System
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/buytelegrambots-web/bot
+ExecStart=/opt/buytelegrambots-web/bot/.venv/bin/python main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -67,7 +67,9 @@ async def run_bots() -> None:
     logger.info("Cleaning up any active webhooks...")
     for bot in bots:
         try:
-            await bot.delete_webhook(drop_pending_updates=True)
+            # Keep messages buyers sent while the bot was down or restarting
+            # (Telegram holds them up to 24h) so nobody is left unanswered.
+            await bot.delete_webhook(drop_pending_updates=False)
             await setup_bot_commands(bot)
             logger.info("Successfully cleared webhook for bot.")
         except Exception as exc:
