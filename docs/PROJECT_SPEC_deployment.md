@@ -122,6 +122,16 @@ Docker Compose location
 /opt/buytelegrambots-web/web
 ```
 
+Secrets
+
+`web/.dockerignore` keeps `.env` (and local `.venv/`, `__pycache__/`) out of the image. Secrets reach the container only at runtime through `env_file: .env` in `docker-compose.yml`. Never remove `.env` from `.dockerignore`.
+
+Verify after a rebuild (must print nothing):
+
+```
+docker compose run --rm buytelegrambots-web ls -a /app | grep -i env
+```
+
 ---
 
 ## 5. Deployment Workflow
