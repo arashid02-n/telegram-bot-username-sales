@@ -6,11 +6,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 
 from database import get_user_bid
-from keyboards import (
-    main_keyboard, change_offer_keyboard, 
-    asset_info_existing_keyboard, explore_ids_keyboard
-)
-from config import logger
+from keyboards import main_keyboard, change_offer_keyboard, explore_ids_keyboard
 
 router = Router()
 
@@ -94,69 +90,6 @@ async def cb_back_routing(callback: CallbackQuery) -> None:
         await callback.message.edit_text(text, reply_markup=markup)
     except TelegramBadRequest:
         pass
-    await callback.answer()
-
-
-@router.callback_query(F.data == "back_to_main")
-async def cb_back_to_main(callback: CallbackQuery) -> None:
-    text = (
-    f"🎯 <b>@{bot_username} is for sale.</b>\n\n"
-    "This bot handles offers and negotiations directly.\n\n"
-    "Use the menu below to place your bid or check your current status."
-    )
-    try:
-        await callback.message.edit_text(text, reply_markup=main_keyboard())
-    except TelegramBadRequest:
-        pass
-    await callback.answer()
-
-
-@router.callback_query(F.data == "asset_info_existing")
-async def cb_asset_info_existing(callback: CallbackQuery) -> None:
-    """Displays asset info with custom buttons for existing bidders."""
-    text = (
-        "ℹ️ <b>Username Value</b>\n\n"
-        f"<b>@{bot_username}</b> is a short, memorable Telegram handle.\n\n"
-        "Clean handles build trust, elevate brand identity, and retain long-term value across Telegram & TON ecosystem."
-    )
-    try:
-        await callback.message.edit_text(text, reply_markup=asset_info_existing_keyboard())
-    except TelegramBadRequest as exc:
-        if "message is not modified" not in str(exc):
-            logger.error("Failed to edit asset info message: %s", exc)
-    await callback.answer()
-
-
-@router.callback_query(F.data == "back_to_existing")
-async def cb_back_to_existing(callback: CallbackQuery) -> None:
-    """Takes the existing bidder back to their custom bid preview instead of start."""
-    # Add the bot_username fetch, then change the call:
-    bot_username = (await callback.bot.get_me()).username
-    past_bid = get_user_bid(bot_username, callback.from_user.id)
-    if past_bid:
-        amount, contact, timestamp = past_bid
-        text = (
-            "🧾 Your Current Offer\n\n"
-            f"💰 <b>Amount:</b> ${amount:,.2f}\n"
-            f"📞 <b>Contact on file:</b> <code>{contact}</code>\n"
-            f"📅 <b>Date:</b> {timestamp[:16]} (UTC)\n\n"
-            "Would you like to modify your offer?"
-        )
-        try:
-            await callback.message.edit_text(text, reply_markup=change_offer_keyboard())
-        except TelegramBadRequest:
-            pass
-    else:
-        # Fallback to main menu if no past bid is found
-        text = (
-            f"🎯 <b>@{bot_username} is for sale.</b>\n\n"
-            "This bot handles offers and negotiations directly.\n\n"
-            "Use the menu below to place your bid or check your current status."
-        )
-        try:
-            await callback.message.edit_text(text, reply_markup=main_keyboard())
-        except TelegramBadRequest:
-            pass
     await callback.answer()
 
 
