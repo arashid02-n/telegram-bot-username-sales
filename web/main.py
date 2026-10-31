@@ -1,4 +1,5 @@
 import os
+import html
 import json
 import logging
 import httpx
@@ -50,14 +51,25 @@ class FormSubmission(BaseModel):
     notes: str | None = None
 
 
+def escape_for_telegram(text: str) -> str:
+    """Make buyer-typed text safe inside a Telegram HTML message.
+
+    Telegram rejects the whole message if the text contains a raw `&`, `<`
+    or `>` (e.g. "R&D Corp", "budget < 500"), so the offer would be lost.
+    Quotes are left as-is: they are harmless outside HTML tags.
+    """
+    return html.escape(text, quote=False)
+
+
 def format_telegram_message(data: FormSubmission) -> str:
-    notes_section = f"\n<b>📝 Notes:</b> {data.notes}" if data.notes else ""
+    e = escape_for_telegram
+    notes_section = f"\n<b>📝 Notes:</b> {e(data.notes)}" if data.notes else ""
     return (
         f"🚨 <b>NEW BUYER OFFER RECEIVED</b> 🚨\n\n"
-        f"<b>🤖 Target Asset:</b> {data.bot_username}\n"
+        f"<b>🤖 Target Asset:</b> {e(data.bot_username)}\n"
         f"<b>💰 Offer Amount:</b> ${data.bid:,.2f} USD\n"
-        f"<b>👤 Buyer Name:</b> {data.name}\n"
-        f"<b>📬 Contact Info:</b> {data.contact}"
+        f"<b>👤 Buyer Name:</b> {e(data.name)}\n"
+        f"<b>📬 Contact Info:</b> {e(data.contact)}"
         f"{notes_section}\n\n"
         f"<i>⚡ Action Required: Reach out to buyer promptly.</i>"
     )
