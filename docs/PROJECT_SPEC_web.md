@@ -5,10 +5,10 @@ BuyTelegramBots.com is a lightweight web application and webhook relay that show
 The application also features dynamically generated, SEO-optimized landing pages for individual bots.
 
 ## 2. Tech Stack
-* **Backend:** Python 3, FastAPI, Pydantic, HTTPX, StaticFiles, `python-dotenv`, Jinja2, os
+* **Backend:** Python 3, FastAPI, Pydantic, HTTPX, `FileResponse`, `pathlib`, `python-dotenv`, Jinja2, os
 * **Frontend:** Vanilla JavaScript (ES6+), HTML5 (`<dialog>` API), CSS3 (Variables, Flexbox, Grid)
 * **Integrations:** Telegram Bot API (`sendMessage`), JSON static asset data (`bots.json`)
-* **Relevant Files:** `main.py`, `index.html`, `script.js`, `styles.css`, `bots.json`, `bots_individual_pages.json`, `\templates\bot_detail.html`
+* **Relevant Files:** `main.py`, `static/index.html`, `static/script.js`, `static/styles.css`, `static/favicon.png`, `static/bots.json`, `bots_individual_pages.json`, `templates/bot_detail.html`, `templates/404.html`
 
 ## 3. Active Features
 * **Dynamic Asset Catalog Loading:** Fetches and renders available bot cards directly from `bots.json` with status badges, category tags, and estimated market valuations.
@@ -17,11 +17,11 @@ The application also features dynamically generated, SEO-optimized landing pages
 * **Strict Input Validation:** Enforces regex validation for contacts (Telegram handle, email, or international phone) and hard-caps minimum bid amounts at $100.
 * **Environment-Aware API Routing:** Automatically detects local development environments (ports 3000/5500) vs production domains to route form POST submissions correctly.
 * **Telegram Notification Relay:** Formats incoming form data into structured HTML messages and dispatches them asynchronously via HTTPX to the team's Telegram group chat.
-* **Built-In Static Serving:** Configured to serve static frontend files (HTML, CSS, JS) directly through the FastAPI app instance.
+* **Whitelisted Static Serving:** Public frontend files (HTML, CSS, JS, favicon, `bots.json`) live in `web/static/` and are served by FastAPI **only from that folder** (`/` → `static/index.html`, `/<file.ext>` → `static/<file.ext>`). Every other file in `web/` (`.env`, `main.py`, `Dockerfile`, `templates/`, etc.) returns 404. Public URLs stay at the site root (e.g. `/styles.css`).
 * **Dynamic SEO Landing Pages (SSR):** Natively renders individual landing pages (e.g., /flightticketbot) on the backend via FastAPI and Jinja2. This injects specific Open Graph meta tags before the HTML leaves the server, guaranteeing rich link previews in Telegram without relying on client-side JS.
 
 ## 4. Current Data Flow
-1. **Catalog Load:** Frontend initializes -> JS fetches `bots.json` -> Renders inventory cards in DOM.
+1. **Catalog Load:** FastAPI serves `static/index.html` at `/` -> JS fetches `/bots.json` (served from `static/`) -> Renders inventory cards in DOM.
 2. **Modal Trigger:** User clicks "submit via Web Form" -> JS populates target handle in target field -> Displays `<dialog>` modal.
 3. **Client Submission:** User submits form -> JS validates inputs ($100 minimum, contact pattern) -> JS sends JSON POST payload to `/api/submit-form`.
 4. **Backend Processing:** FastAPI receives request -> Pydantic model (`FormSubmission`) parses and validates schema -> Formats HTML alert body.
@@ -33,3 +33,4 @@ The application also features dynamically generated, SEO-optimized landing pages
 * **No Heavy Frontend Frameworks:** Avoids React, Vue, or complex build pipelines; strictly uses native vanilla JS, native HTML `<dialog>`, and raw CSS. All dynamic routing must remain on the FastAPI backend using Vanilla JS and HTML templating.
 * **No On-Site Payment Processing:** Avoids holding funds or handling payment gateways on the web; transfer and payment execution happen offline via @BotFather or direct broker chat.
 * **No User Accounts or Authentication:** Avoids login flows, buyer profiles, or session tracking.
+* **No Private Files in `static/`:** Everything inside `web/static/` is downloadable by anyone. Never place secrets, `.env` files, source code, or internal data there, and never serve files from the `web/` folder itself (no `StaticFiles(directory=".")`, no `os.path.isfile(slug)`).
