@@ -237,7 +237,9 @@ main
 
 ## 8. File Responsibilities
 
-bots.json
+> **Public vs private:** only files inside `web/static/` can be downloaded by visitors. Everything else in `web/` (including `.env`) is private. Never put secrets in `web/static/`.
+
+static/bots.json
 
 Purpose
 
@@ -294,12 +296,13 @@ systemctl restart buytelegrambots-web
 
 ---
 
-Static Assets
+Static Assets (public, in `web/static/`)
 
 ```
-styles.css
-script.js
-favicon.png
+static/index.html
+static/styles.css
+static/script.js
+static/favicon.png
 ```
 
 Restart service after modification.

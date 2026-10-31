@@ -2,12 +2,12 @@ import os
 import json
 import logging
 import httpx
+from pathlib import Path
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -20,6 +20,10 @@ app = FastAPI(title="BuyTelegramBots Marketplace")
 
 # Initialize Jinja2 templates directory
 templates = Jinja2Templates(directory="templates")
+
+# The ONLY folder whose files visitors may download (index.html, styles.css, ...).
+# Everything else in web/ (.env, main.py, Dockerfile, templates) stays private.
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")
@@ -133,7 +137,7 @@ Sitemap: https://buytelegrambots.com/sitemap.xml
 @app.get("/sitemap.xml", response_class=Response)
 async def sitemap_xml():
     try:
-        with open("bots.json", "r", encoding="utf-8") as f:
+        with open(STATIC_DIR / "bots.json", "r", encoding="utf-8") as f:
             bots = json.load(f)
     except Exception:
         bots = []
@@ -152,13 +156,20 @@ async def sitemap_xml():
     return Response(content=sitemap_content, media_type="application/xml")
 
 
+# Homepage
+@app.get("/", response_class=HTMLResponse)
+async def serve_homepage():
+    return FileResponse(STATIC_DIR / "index.html")
+
+
 @app.get("/{slug}", response_class=HTMLResponse)
 async def serve_bot_landing_page(request: Request, slug: str):
-    # Serve static asset files directly if requested
-    if os.path.isfile(slug):
-        return FileResponse(slug)
-
+    # Serve public files (styles.css, script.js, ...) ONLY from static/.
+    # `slug` can never contain "/", so a request cannot leave that folder.
     if "." in slug:
+        public_file = STATIC_DIR / slug
+        if public_file.is_file():
+            return FileResponse(public_file)
         raise HTTPException(status_code=404, detail="Not Found")
 
     bot = get_expanded_bot_data(slug)
@@ -187,6 +198,3 @@ async def custom_404_handler(request: Request, exc: StarletteHTTPException):
     if exc.status_code == 404:
         return templates.TemplateResponse(request=request, name="404.html", status_code=404)
     return HTMLResponse(content=str(exc.detail), status_code=exc.status_code)
-
-# Serve root index.html and static files
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
