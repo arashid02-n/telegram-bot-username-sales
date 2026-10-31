@@ -151,7 +151,8 @@ async function handleFormSubmit(event) {
     name: formData.get('name'),
     contact: contactInput,
     bid: bidInput,
-    notes: formData.get('notes') || null
+    notes: formData.get('notes') || null,
+    hp_field: formData.get('hp_field') || null  // honeypot, empty for humans
   };
 
   try {
@@ -175,10 +176,19 @@ async function handleFormSubmit(event) {
       body: JSON.stringify(offerData)
     });
 
-    const result = await response.json();
+    // Some error responses are plain text, not JSON (e.g. 429), so don't let
+    // parsing fail before we can look at the status code.
+    let result = {};
+    try {
+      result = await response.json();
+    } catch (parseError) {
+      result = {};
+    }
 
     if (!response.ok) {
-      throw new Error(result.detail || 'Server responded with an error.');
+      const err = new Error(typeof result.detail === 'string' ? result.detail : 'Server responded with an error.');
+      err.status = response.status;
+      throw err;
     }
 
     // 5. Success! Notify user and reset
@@ -191,7 +201,13 @@ async function handleFormSubmit(event) {
 
   } catch (error) {
     console.error("Submission Error:", error);
-    alert("⚠️ Could not send your offer at this time. Please try contacting us directly via Telegram.");
+    if (error.status === 429) {
+      alert("⚠️ You've sent several offers in a short time. Please wait an hour, or message us directly on Telegram.");
+    } else if (error.status === 422) {
+      alert("⚠️ Please check your details: your name, a valid email / phone / @Telegram username, and an offer up to $1,000,000.");
+    } else {
+      alert("⚠️ Could not send your offer at this time. Please try contacting us directly via Telegram.");
+    }
   } finally {
     // Restore button state
     submitBtn.textContent = originalBtnText;

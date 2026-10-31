@@ -2,15 +2,16 @@ import os
 import html
 import json
 import logging
+import time
 import httpx
+from collections import defaultdict, deque
 from pathlib import Path
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, FileResponse, Response
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # Load environment variables
@@ -34,21 +35,88 @@ if not BOT_TOKEN or not GROUP_CHAT_ID:
 
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# --- Web form protection (F2) -------------------------------------------
+# The browser checks in the form are only a convenience: anyone can post to
+# /api/submit-form directly, so every rule is enforced here on the server.
+# (No CORS middleware: the form and this API are on the same domain, so no
+# other website needs permission to call it.)
+
+MAX_BID_USD = 1_000_000
+MAX_NOTES_LENGTH = 1000          # keeps the alert under Telegram's 4096-char limit
+RATE_LIMIT = 5                   # accepted submissions...
+RATE_WINDOW_SECONDS = 3600       # ...per visitor per hour
+
+# Email, phone number, or @TelegramUsername. The SAME pattern is used in the
+# form's `pattern` attribute (static/index.html, templates/bot_detail.html);
+# `-`, `(` and `)` are escaped inside [...] so browsers accept it too.
+CONTACT_PATTERN = (
+    r"^([A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}"
+    r"|\+?[0-9\s\(\)\-]{7,20}"
+    r"|@[A-Za-z][A-Za-z0-9_]{4,31})$"
 )
 
 
+def listed_handles() -> set[str]:
+    """Lower-case usernames of the bots currently listed in static/bots.json."""
+    try:
+        with open(STATIC_DIR / "bots.json", "r", encoding="utf-8") as f:
+            return {b["username"].lower() for b in json.load(f)}
+    except Exception as e:
+        logging.error(f"Could not read bots.json for form validation: {e}")
+        return set()
+
+
 class FormSubmission(BaseModel):
-    bot_username: str
-    name: str
-    contact: str
-    bid: float
-    notes: str | None = None
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    bot_username: str = Field(min_length=1, max_length=64)
+    name: str = Field(min_length=1, max_length=100)
+    contact: str = Field(max_length=120, pattern=CONTACT_PATTERN)
+    bid: float = Field(gt=0, le=MAX_BID_USD)
+    notes: str | None = Field(default=None, max_length=MAX_NOTES_LENGTH)
+    # Honeypot: hidden in the form, so humans leave it empty; spam bots fill it.
+    hp_field: str | None = None
+
+    @field_validator("bot_username")
+    @classmethod
+    def must_be_listed(cls, value: str) -> str:
+        handles = listed_handles()
+        # If bots.json can't be read, don't lose real offers: accept and log.
+        if handles and value.lstrip("@").lower() not in handles:
+            raise ValueError("Unknown username")
+        return value
+
+
+_recent_submissions: dict[str, deque] = defaultdict(deque)
+
+
+def client_ip(request: Request) -> str:
+    """The visitor's real IP address.
+
+    Requests reach this app through Cloudflare -> Nginx, so request.client.host
+    is 127.0.0.1 for everyone. Cloudflare puts the real visitor IP in the
+    CF-Connecting-IP header.
+    """
+    return request.headers.get("cf-connecting-ip") or (
+        request.client.host if request.client else "unknown"
+    )
+
+
+def is_rate_limited(ip: str) -> bool:
+    """True if this IP already had RATE_LIMIT accepted submissions in the window."""
+    now = time.time()
+    if len(_recent_submissions) > 10_000:  # forget visitors whose window has passed
+        for old_ip in [k for k, q in _recent_submissions.items()
+                       if not q or now - q[-1] > RATE_WINDOW_SECONDS]:
+            del _recent_submissions[old_ip]
+    recent = _recent_submissions[ip]
+    while recent and now - recent[0] > RATE_WINDOW_SECONDS:
+        recent.popleft()
+    if len(recent) >= RATE_LIMIT:
+        return True
+    recent.append(now)
+    return False
+# -------------------------------------------------------------------------
 
 
 def escape_for_telegram(text: str) -> str:
@@ -106,7 +174,18 @@ def get_expanded_bot_data(slug: str):
 
 
 @app.post("/api/submit-form", status_code=status.HTTP_200_OK)
-async def handle_form_submission(form_data: FormSubmission):
+async def handle_form_submission(form_data: FormSubmission, request: Request):
+    # Honeypot filled -> a bot. Pretend success so it doesn't retry; send nothing.
+    if form_data.hp_field:
+        logging.info("Web form: honeypot filled, submission dropped.")
+        return {"status": "success", "message": "Request delivered to team group chat."}
+
+    if is_rate_limited(client_ip(request)):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many submissions. Please try again later or message us on Telegram.",
+        )
+
     formatted_message = format_telegram_message(form_data)
 
     payload = {
