@@ -33,7 +33,21 @@ A multi-tenant Telegram bot system designed to broker, manage, and help negotiat
 4. **Negotiation Process - Admin Side:** Admin clicks `Start Negotiation`. A new forum topic with the buyer's details opens in the Group Chat. The Admin can chat with the buyer inside this topic. Any messages sent by the admin here are redirected to the buyer via the bot.
 5. **Negotiation Process - Buyer Side:** The Bot gives a notice that it has `initiated Live Mode` and any message sent here will be redirected to the admin. Standard bot routing is suspended in this state until the admin clicks `End Negotiation` inside the topic.
 
-## 5. Expressed Non-Goals / Things to Avoid
+## 5. Button Map
+Every inline button's `callback_data` and the one handler that answers it. A handler whose `callback_data` no button produces is dead code. It can only be triggered by a hand-crafted update and is easy to break unnoticed. Remove it, or add its button in the same change.
+
+| `callback_data` | Button(s) | Handler |
+|---|---|---|
+| `make_offer` | Make an Offer / Change Offer / Make / Change Offer | `handlers/bidding.py` `cb_make_offer` |
+| `asset_info:<source>` | Username Info | `handlers/callbacks.py` `cb_asset_info` |
+| `explore_ids:<source>` | Other Available Usernames | `handlers/callbacks.py` `cb_explore_ids` |
+| `back:<source>` | Back | `handlers/callbacks.py` `cb_back_routing` |
+| `admin_negotiate_<buyer_id>` | Start Negotiation (admin group) | `handlers/negotiation.py` |
+| `admin_endnego_<buyer_id>` | End Negotiation (admin topic) | `handlers/negotiation.py` |
+
+`<source>` (`start`, `nobid`, `mybid`, `end_nego`, `catchall`) tells **Back** which screen to return to.
+
+## 6. Expressed Non-Goals / Things to Avoid
 * **No Webhooks / REST APIs:** Relying on webhooks is avoided in favor of long-polling (`dp.start_polling`) with automatic webhook removal on launch. Pending updates are **kept** (`drop_pending_updates=False`): messages buyers sent while the bot was down or restarting are answered when it comes back (Telegram holds them up to 24h). Do not switch this back to `True`.
 * **Production:** runs as the systemd service `gram-bid-system` (definition in `deploy/gram-bid-system.service`); see `PROJECT_SPEC_deployment.md`.
 * **No Destructive Database Mutations:** Avoid deleting records or dropping tables when modifying offer statuses.

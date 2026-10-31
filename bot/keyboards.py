@@ -12,14 +12,6 @@ def main_keyboard(source: str = "start") -> InlineKeyboardMarkup:
         ]
     )
 
-def asset_info_keyboard(source: str) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="💵 Make an Offer", callback_data="make_offer")],
-            [InlineKeyboardButton(text="🔙 Back", callback_data=f"back:{source}")]
-        ]
-    )
-
 def explore_ids_keyboard(current_bot_username: str, source: str) -> InlineKeyboardMarkup:
     buttons = []
     for asset in PORTFOLIO_IDS:
@@ -31,27 +23,12 @@ def explore_ids_keyboard(current_bot_username: str, source: str) -> InlineKeyboa
     buttons.append([InlineKeyboardButton(text="🔙 Back", callback_data=f"back:{source}")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def skip_inline_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="⏭️ Skip", callback_data="skip_contact")]
-        ]
-    )
-
 def change_offer_keyboard(source: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="✏️ Change Offer", callback_data="make_offer")],
             [InlineKeyboardButton(text="🌐 Other Available Usernames", callback_data=f"explore_ids:{source}")],
             [InlineKeyboardButton(text="ℹ️ Username Info", callback_data=f"asset_info:{source}")]
-        ]
-    )
-
-def asset_info_existing_keyboard(source: str) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="✏️ Change Offer", callback_data="make_offer")],
-            [InlineKeyboardButton(text="🔙 Back", callback_data=f"back:{source}")]
         ]
     )
 
