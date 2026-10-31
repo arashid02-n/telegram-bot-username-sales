@@ -1,0 +1,21 @@
+# Copy of /etc/systemd/system/buytelegrambots-web.service on the production server.
+# The website (FastAPI). Keep this file identical to the server's copy.
+[Unit]
+Description=BuyTelegramBots Web (FastAPI)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+
+WorkingDirectory=/opt/buytelegrambots-web/web
+
+EnvironmentFile=/opt/buytelegrambots-web/web/.env
+
+ExecStart=/opt/buytelegrambots-web/web/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8004
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

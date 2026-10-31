@@ -1,6 +1,11 @@
+import os
 import sqlite3
+from pathlib import Path
 
-DB_NAME = "bids.db"
+# Always the same file (bot/bids.db), no matter which folder the bot is started
+# from. A relative "bids.db" silently created a new, empty database whenever the
+# working directory changed. Override with DB_PATH in bot/.env if needed.
+DB_NAME = os.getenv("DB_PATH", str(Path(__file__).resolve().parent / "bids.db"))
 
 
 def init_db() -> None:
