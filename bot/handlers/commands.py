@@ -13,7 +13,7 @@ router = Router()
 @router.message(CommandStart(), F.chat.type == "private")
 async def cmd_start(message: Message, state: FSMContext) -> None:
     await state.clear()
-    bot_username = (await message.bot.get_me()).username
+    bot_username = (await message.bot.me()).username
     text = (
     f"🎯 <b>@{bot_username} is for sale.</b>\n\n"
     "This bot handles offers and negotiations directly.\n\n"
@@ -25,7 +25,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 @router.message(Command("my_bid"), F.chat.type == "private")
 async def cmd_my_bid(message: Message, state: FSMContext) -> None:
     await state.clear()
-    bot_username = (await message.bot.get_me()).username
+    bot_username = (await message.bot.me()).username
     past_bid = get_user_bid(bot_username, message.from_user.id)
     
     if past_bid:
@@ -48,7 +48,7 @@ async def cmd_my_bid(message: Message, state: FSMContext) -> None:
 @router.message(Command("about"), F.chat.type == "private")
 async def cmd_about(message: Message, state: FSMContext) -> None:
     await state.clear()
-    bot_username = (await message.bot.get_me()).username
+    bot_username = (await message.bot.me()).username
     
     text = (
         "ℹ️ <b>How It Works</b>\n\n"
