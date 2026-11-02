@@ -9,7 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, FileResponse, Response
+from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -29,7 +29,7 @@ templates = Jinja2Templates(directory="templates")
 SITE_URL = os.getenv("SITE_URL", "https://www.buytelegrambots.com").rstrip("/")
 templates.env.globals["SITE_URL"] = SITE_URL   # usable as {{ SITE_URL }} in every template
 
-# The ONLY folder whose files visitors may download (index.html, styles.css, ...).
+# The ONLY folder whose files visitors may download (styles.css, script.js, ...).
 # Everything else in web/ (.env, main.py, templates, ...) stays private.
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
@@ -53,7 +53,7 @@ RATE_LIMIT = 5                   # accepted submissions...
 RATE_WINDOW_SECONDS = 3600       # ...per visitor per hour
 
 # Email, phone number, or @TelegramUsername. The SAME pattern is used in the
-# form's `pattern` attribute (static/index.html, templates/bot_detail.html);
+# form's `pattern` attribute (templates/index.html, templates/bot_detail.html);
 # `-`, `(` and `)` are escaped inside [...] so browsers accept it too.
 CONTACT_PATTERN = (
     r"^([A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}"
@@ -253,16 +253,32 @@ async def sitemap_xml():
     return Response(content=sitemap_content, media_type="application/xml")
 
 
-# Homepage
+def load_catalog() -> list[dict]:
+    """The homepage cards (static/bots.json), in listing order."""
+    try:
+        with open(STATIC_DIR / "bots.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        logging.error(f"Error reading bots.json for the homepage: {e}")
+        return []
+
+
+# Homepage. The cards are written into the HTML here on the server (not built
+# later by JavaScript), so Google sees every listed username and every link to
+# its landing page. script.js only shows/hides cards for the category filter.
 @app.get("/", response_class=HTMLResponse)
-async def serve_homepage():
-    return FileResponse(STATIC_DIR / "index.html")
+async def serve_homepage(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="index.html", context={"bots": load_catalog()}
+    )
 
 
 @app.get("/{slug}", response_class=HTMLResponse)
 async def serve_bot_landing_page(request: Request, slug: str):
     # Serve public files (styles.css, script.js, ...) ONLY from static/.
     # `slug` can never contain "/", so a request cannot leave that folder.
+    if slug == "index.html":   # old address of the homepage
+        return RedirectResponse("/", status_code=301)
     if "." in slug:
         public_file = STATIC_DIR / slug
         if public_file.is_file():

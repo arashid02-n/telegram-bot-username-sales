@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <!-- Add Canonical Tag Here -->
-  <link rel="canonical" href="https://www.buytelegrambots.com/" />
+  <link rel="canonical" href="{{ SITE_URL }}/" />
 
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <title>Buy Telegram Bots</title>
   <meta name="description" content="Browse and acquire high-value Telegram Usernames." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.buytelegrambots.com/" />
+  <meta property="og:url" content="{{ SITE_URL }}/" />
   <meta property="og:title" content="Buy Telegram Bots" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <link rel="stylesheet" href="styles.css" />
-  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/script.js" defer></script>
 </head>
 <body>
 
@@ -83,8 +83,44 @@
             <button class="filter-btn" data-filter="Utilities">Utilities</button>
         </div>
 
-        <!-- Responsive Card Grid (Cards dynamically loaded via script.js) -->
-        <div class="asset-grid" id="assetGrid"></div>
+        <!-- Responsive Card Grid: rendered on the server from static/bots.json (see main.py serve_homepage) -->
+        <div class="asset-grid" id="assetGrid">
+          {% for bot in bots %}
+          <div class="asset-card" data-category="{{ bot.category }}">
+            <div class="card-top">
+              <span class="category-tag">{{ bot.category }}</span>
+              <span class="status-badge {{ 'status-active' if bot.status_code == 'active' else 'status-pending' }}">{{ bot.status }}</span>
+            </div>
+
+            <h3 class="bot-handle">
+              <a href="/{{ bot.id }}" class="handle-link">@{{ bot.username }}</a>
+            </h3>
+            <p class="bot-desc">{{ bot.desc }}</p>
+
+            <div class="card-meta">
+              <div class="meta-item">
+                <span class="meta-label">Est. Value</span>
+                <span class="meta-value">{{ bot.est_value }}</span>
+              </div>
+              <div class="meta-item text-right">
+                <span class="meta-label">Transfer Method</span>
+                <span class="meta-value">@BotFather</span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <a href="https://t.me/{{ bot.username }}?start=website" target="_blank" rel="noopener" class="btn-telegram">
+                💬 Make Offer on Telegram
+              </a>
+              <button type="button" class="btn-webform-link" onclick="openOfferModal('{{ bot.username }}')">
+                or submit via Web Form
+              </button>
+            </div>
+          </div>
+          {% else %}
+          <p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">Unable to load inventory. Please refresh the page.</p>
+          {% endfor %}
+          <p id="noResults" hidden style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">No bot handles found in this category.</p>
+        </div>
         <!-- After a username is sold, in the "bots.json" file >> status: "Sold", status_code: "pending" -->
     </section>
 

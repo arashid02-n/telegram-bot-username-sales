@@ -224,7 +224,7 @@ static/bots.json
 
 Purpose
 
-Homepage inventory cards. Also the list of usernames the web form accepts (`bot_username` validation).
+Homepage inventory cards (rendered into `templates/index.html` by the server). Also the list of usernames the web form accepts (`bot_username` validation) and the entries in `sitemap.xml`.
 
 Changing this file updates:
 
@@ -265,7 +265,9 @@ systemctl restart buytelegrambots-web
 Templates
 
 ```
-templates/
+templates/index.html        # homepage
+templates/bot_detail.html   # landing pages
+templates/404.html
 ```
 
 Changing template files updates page layout.
@@ -281,7 +283,6 @@ systemctl restart buytelegrambots-web
 Static Assets (public, in `web/static/`)
 
 ```
-static/index.html
 static/styles.css
 static/script.js
 static/favicon.png
