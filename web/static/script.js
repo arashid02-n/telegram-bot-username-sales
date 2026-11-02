@@ -1,89 +1,25 @@
 // ==========================================
-// DYNAMIC BOT LOADER & MODAL CONTROLLER
+// CATEGORY FILTER & MODAL CONTROLLER
 // ==========================================
-
-let allBotsData = []; // Store loaded bots globally for filtering
 
 const modal = document.getElementById('offerModal');
 const displayHandle = document.getElementById('targetBotDisplay');
 const hiddenInput = document.getElementById('targetBotInput');
-const assetGrid = document.getElementById('assetGrid');
 
-// --- 1. FETCH & RENDER BOTS FROM JSON ---
 document.addEventListener('DOMContentLoaded', () => {
-  loadBotInventory();
   setupCategoryFilters();
   setupBackToTop();
 });
 
-async function loadBotInventory() {
-  try {
-    const response = await fetch('bots.json');
-    if (!response.ok) throw new Error('Could not load bots.json');
-    
-    allBotsData = await response.json();
-    renderBotCards(allBotsData);
-  } catch (error) {
-    console.error('Error loading bot inventory:', error);
-    if (assetGrid) {
-      assetGrid.innerHTML = `<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">Unable to load inventory. Please refresh the page.</p>`;
-    }
-  }
-}
-
-function renderBotCards(bots) {
-  if (!assetGrid) return;
-  
-  assetGrid.innerHTML = '';
-
-  if (bots.length === 0) {
-    assetGrid.innerHTML = `<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">No bot handles found in this category.</p>`;
-    return;
-  }
-
-  bots.forEach(bot => {
-    const badgeClass = bot.status_code === 'active' ? 'status-active' : 'status-pending';
-    
-    const cardHTML = `
-      <div class="asset-card" data-category="${bot.category}">
-        <div class="card-top">
-          <span class="category-tag">${bot.category}</span>
-          <span class="status-badge ${badgeClass}">${bot.status}</span>
-        </div>
-
-        <h3 class="bot-handle">
-          <a href="/${bot.id}" class="handle-link">@${bot.username}</a>
-        </h3>
-        <p class="bot-desc">${bot.desc}</p>
-
-        <div class="card-meta">
-          <div class="meta-item">
-            <span class="meta-label">Est. Value</span>
-            <span class="meta-value">${bot.est_value}</span>
-          </div>
-          <div class="meta-item text-right">
-            <span class="meta-label">Transfer Method</span>
-            <span class="meta-value">@BotFather</span>
-          </div>
-        </div>
-        <div class="card-actions">
-          <a href="https://t.me/${bot.username}?start=website" target="_blank" rel="noopener" class="btn-telegram">
-            💬 Make Offer on Telegram
-          </a>
-          <button type="button" class="btn-webform-link" onclick="openOfferModal('${bot.username}')">
-            or submit via Web Form
-          </button>
-        </div>
-      </div>
-    `;
-    
-    assetGrid.insertAdjacentHTML('beforeend', cardHTML);
-  });
-}
+// --- 1. BOT CARDS ---
+// The cards are already in the page HTML (rendered on the server from
+// bots.json), so search engines can read them. Nothing to load here.
 
 // --- 2. INTERACTIVE CATEGORY FILTERING ---
 function setupCategoryFilters() {
   const filterButtons = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.asset-card');
+  const noResults = document.getElementById('noResults');
 
   filterButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -92,13 +28,12 @@ function setupCategoryFilters() {
       button.classList.add('active');
 
       const selectedCategory = button.getAttribute('data-filter');
-
-      if (selectedCategory === 'all') {
-        renderBotCards(allBotsData);
-      } else {
-        const filteredBots = allBotsData.filter(bot => bot.category === selectedCategory);
-        renderBotCards(filteredBots);
-      }
+      let shown = 0;
+      cards.forEach(card => {
+        card.hidden = selectedCategory !== 'all' && card.dataset.category !== selectedCategory;
+        if (!card.hidden) shown++;
+      });
+      if (noResults) noResults.hidden = shown > 0;
     });
   });
 }
