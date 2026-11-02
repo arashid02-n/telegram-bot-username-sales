@@ -21,6 +21,8 @@ The application also features dynamically generated, SEO-optimized landing pages
 * **Whitelisted Static Serving:** Public frontend files (HTML, CSS, JS, favicon, `bots.json`) live in `web/static/` and are served by FastAPI **only from that folder** (`/` → `static/index.html`, `/<file.ext>` → `static/<file.ext>`). Every other file in `web/` (`.env`, `main.py`, `templates/`, etc.) returns 404. Public URLs stay at the site root (e.g. `/styles.css`).
 * **Dynamic SEO Landing Pages (SSR):** Natively renders individual landing pages (e.g., /flightticketbot) on the backend via FastAPI and Jinja2. This injects specific Open Graph meta tags before the HTML leaves the server, guaranteeing rich link previews in Telegram without relying on client-side JS.
 
+* **One Canonical Address (`SITE_URL`):** The site's only public address is `https://www.buytelegrambots.com` (the version without `www` 301-redirects to it). `main.py` defines it once as `SITE_URL` (overridable in `web/.env`) and exposes it to every template as `{{ SITE_URL }}`. `robots.txt`, every `sitemap.xml` entry, each landing page's canonical link and its JSON-LD `url` are built from it. `static/index.html` is a plain file (not a template), so its canonical and `og:url` are written out in full and must match `SITE_URL`.
+
 ## 4. Current Data Flow
 1. **Catalog Load:** FastAPI serves `static/index.html` at `/` -> JS fetches `/bots.json` (served from `static/`) -> Renders inventory cards in DOM.
 2. **Modal Trigger:** User clicks "submit via Web Form" -> JS populates target handle in target field -> Displays `<dialog>` modal.
@@ -37,4 +39,5 @@ The application also features dynamically generated, SEO-optimized landing pages
 * **No Browser-Only Rules:** Every rule in the web form must also be enforced in `FormSubmission`. Anyone can post to `/api/submit-form` without a browser. When changing a form `pattern`, update `CONTACT_PATTERN` too (and keep `-`, `(`, `)` escaped inside `[...]` — modern browsers reject the pattern otherwise and silently skip the check).
 * **No Open CORS:** Do not re-add `CORSMiddleware` with `allow_origins=["*"]`; the form and API share one domain.
 * **No Unescaped User Text in Telegram Messages:** Never insert buyer-typed text into a Telegram HTML message without `escape_for_telegram()`. A single raw `&` or `<` makes Telegram reject the whole message and the offer is lost.
+* **No Addresses That Redirect:** Never write `https://buytelegrambots.com/...` (without `www`) in a canonical link, sitemap, robots.txt, `og:url` or JSON-LD. Google does not index addresses that redirect. Use `{{ SITE_URL }}` in templates and `SITE_URL` in Python.
 * **No Private Files in `static/`:** Everything inside `web/static/` is downloadable by anyone. Never place secrets, `.env` files, source code, or internal data there, and never serve files from the `web/` folder itself (no `StaticFiles(directory=".")`, no `os.path.isfile(slug)`).

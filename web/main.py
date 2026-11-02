@@ -23,6 +23,12 @@ app = FastAPI(title="BuyTelegramBots Marketplace")
 # Initialize Jinja2 templates directory
 templates = Jinja2Templates(directory="templates")
 
+# The site's one public address. https://buytelegrambots.com (no www) 301-redirects
+# here, and Google ignores addresses that redirect, so every canonical link,
+# sitemap entry and robots.txt line must use this exact address.
+SITE_URL = os.getenv("SITE_URL", "https://www.buytelegrambots.com").rstrip("/")
+templates.env.globals["SITE_URL"] = SITE_URL   # usable as {{ SITE_URL }} in every template
+
 # The ONLY folder whose files visitors may download (index.html, styles.css, ...).
 # Everything else in web/ (.env, main.py, templates, ...) stays private.
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -219,9 +225,9 @@ async def handle_form_submission(form_data: FormSubmission, request: Request):
 # Dynamic Sitemap & Robots.txt (Crucial for Google)
 @app.get("/robots.txt", response_class=Response)
 async def robots_txt():
-    content = """User-agent: *
+    content = f"""User-agent: *
 Allow: /
-Sitemap: https://buytelegrambots.com/sitemap.xml
+Sitemap: {SITE_URL}/sitemap.xml
 """
     return Response(content=content, media_type="text/plain")
 
@@ -234,14 +240,14 @@ async def sitemap_xml():
         bots = []
 
     urls_xml = "".join(
-        f"<url><loc>https://buytelegrambots.com/{bot['id']}</loc><changefreq>weekly</changefreq></url>"
+        f"<url><loc>{SITE_URL}/{bot['id']}</loc><changefreq>weekly</changefreq></url>"
         for bot in bots
     )
     
     # Notice the corrected 'sitemaps.org' namespace below
     sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url><loc>https://buytelegrambots.com/</loc><changefreq>daily</changefreq></url>
+    <url><loc>{SITE_URL}/</loc><changefreq>daily</changefreq></url>
     {urls_xml}
 </urlset>"""
     return Response(content=sitemap_content, media_type="application/xml")
