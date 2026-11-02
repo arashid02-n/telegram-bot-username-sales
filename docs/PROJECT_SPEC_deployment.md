@@ -244,7 +244,7 @@ bots_individual_pages.json
 
 Purpose
 
-Individual SEO landing pages.
+Individual SEO landing pages, and each listing's minimum offer (`min_bid`): shown on its page and enforced by the web form (browser and server).
 
 Changing this file updates:
 

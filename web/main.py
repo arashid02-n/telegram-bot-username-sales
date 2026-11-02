@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # Load environment variables
@@ -72,6 +72,20 @@ def listed_handles() -> set[str]:
         return set()
 
 
+def listing_minimums() -> dict[str, int]:
+    """{lower-case username: minimum offer in USD} from bots_individual_pages.json.
+
+    The same `min_bid` is shown as "Minimum Offer" on each landing page and
+    used as the form's minimum, so the page and the form can never disagree.
+    """
+    try:
+        with open(Path(__file__).resolve().parent / "bots_individual_pages.json", "r", encoding="utf-8") as f:
+            return {b["slug"].lower(): int(float(b["min_bid"])) for b in json.load(f) if b.get("min_bid")}
+    except Exception as e:
+        logging.error(f"Could not read minimum offers from bots_individual_pages.json: {e}")
+        return {}
+
+
 class FormSubmission(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
@@ -91,6 +105,15 @@ class FormSubmission(BaseModel):
         if handles and value.lstrip("@").lower() not in handles:
             raise ValueError("Unknown username")
         return value
+
+    @model_validator(mode="after")
+    def at_least_listing_minimum(self):
+        # The listing's own minimum (e.g. $70 or $1,700), as shown on its page.
+        # If the minimums can't be read, don't lose real offers: any bid > 0 passes.
+        minimum = listing_minimums().get(self.bot_username.lstrip("@").lower())
+        if minimum and self.bid < minimum:
+            raise ValueError(f"Offer must be at least ${minimum}")
+        return self
 
 
 _recent_submissions: dict[str, deque] = defaultdict(deque)
@@ -172,7 +195,7 @@ def get_expanded_bot_data(slug: str):
         "category": bot.get("category", "Utilities"),
         "status": bot.get("status", "Accepting Bids"),
         "est_value": bot.get("est_value", "$500"),
-        "min_bid": bot.get("min_bid", "100"),
+        "min_bid": int(float(bot.get("min_bid") or 1)),
         "pitch": bot.get("pitch", "High-value premium Telegram handle available for acquisition."),
         "ideal_for": bot.get("ideal_for", []),
         "use_cases": bot.get("use_cases", [])
@@ -257,10 +280,14 @@ def load_catalog() -> list[dict]:
     """The homepage cards (static/bots.json), in listing order."""
     try:
         with open(STATIC_DIR / "bots.json", "r", encoding="utf-8") as f:
-            return json.load(f)
+            bots = json.load(f)
     except Exception as e:
         logging.error(f"Error reading bots.json for the homepage: {e}")
         return []
+    minimums = listing_minimums()
+    for bot in bots:  # the web form opened from a card uses that listing's minimum
+        bot["min_bid"] = minimums.get(bot["username"].lower(), 1)
+    return bots
 
 
 # Homepage. The cards are written into the HTML here on the server (not built
