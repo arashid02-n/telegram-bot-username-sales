@@ -300,6 +300,36 @@ async def serve_homepage(request: Request):
     )
 
 
+def product_schema_json(bot: dict) -> str:
+    """Schema.org Product data (JSON-LD) for a landing page, built with json.dumps.
+
+    Built in Python, not typed into the template, so it is always valid JSON and
+    Google reads the real text (a template would turn `&` into `&amp;` and `"`
+    into `&#34;` inside the data). The handle is sold by offer, so it is
+    described as "offers from $min_bid" (AggregateOffer.lowPrice), not as a
+    fixed price, and marked sold out once bots.json no longer says "active".
+    """
+    listing = next((b for b in load_catalog() if b.get("id", "").lower() == bot["slug"].lower()), None)
+    available = listing.get("status_code") == "active" if listing else "sold" not in bot["status"].lower()
+    data = {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": bot["handle"],
+        "description": bot["pitch"],
+        "category": bot["category"],
+        "offers": {
+            "@type": "AggregateOffer",
+            "priceCurrency": "USD",
+            "lowPrice": bot["min_bid"],
+            "offerCount": 1,
+            "availability": "https://schema.org/InStock" if available else "https://schema.org/SoldOut",
+            "url": f"{SITE_URL}/{bot['slug']}",
+        },
+    }
+    # "<" escaped so no text can ever close the <script> tag early.
+    return json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
+
+
 @app.get("/{slug}", response_class=HTMLResponse)
 async def serve_bot_landing_page(request: Request, slug: str):
     # Serve public files (styles.css, script.js, ...) ONLY from static/.
@@ -318,6 +348,7 @@ async def serve_bot_landing_page(request: Request, slug: str):
         raise HTTPException(status_code=404, detail="Username not found")
 
     title = f"Buy {bot['handle']}"
+    schema_json = product_schema_json(bot)
     description = f"Acquire {bot['handle']} ({bot['category']}). {bot['pitch'][:120]}..."
     telegram_cta = f"https://t.me/{bot['raw_username']}"
 
@@ -329,6 +360,7 @@ async def serve_bot_landing_page(request: Request, slug: str):
             "title": title,
             "description": description,
             "telegram_cta": telegram_cta,
+            "schema_json": schema_json,
         }
     )
 
