@@ -39,10 +39,16 @@ function setupCategoryFilters() {
 }
 
 // --- 3. MODAL CONTROLLER LOGIC ---
-function openOfferModal(botUsername) {
+function openOfferModal(botUsername, minBid) {
   const formattedHandle = botUsername.startsWith('@') ? botUsername : `@${botUsername}`;
   displayHandle.textContent = formattedHandle;
   hiddenInput.value = botUsername;
+  // Each listing has its own minimum offer (the "Minimum Offer" on its page).
+  const bidField = document.getElementById('bidAmount');
+  if (bidField && minBid) {
+    bidField.min = minBid;
+    bidField.placeholder = `e.g., ${minBid}`;
+  }
   modal.showModal();
 }
 
@@ -74,9 +80,10 @@ async function handleFormSubmit(event) {
   const contactInput = formData.get('contact').trim();
   const bidInput = formData.get('bid');
 
-  // 3. Optional: Extra safeguard for bid amount (ensures positive number >= 100)
-  if (Number(bidInput) < 100) {
-    alert("⚠️ Offer amount must be at least $100.");
+  // 3. Extra safeguard: at least this listing's minimum (set by openOfferModal)
+  const minBid = Number(document.getElementById('bidAmount').min) || 1;
+  if (Number(bidInput) < minBid) {
+    alert(`⚠️ Offer amount must be at least $${minBid}.`);
     document.getElementById('bidAmount').focus();
     return;
   }
@@ -139,7 +146,7 @@ async function handleFormSubmit(event) {
     if (error.status === 429) {
       alert("⚠️ You've sent several offers in a short time. Please wait an hour, or message us directly on Telegram.");
     } else if (error.status === 422) {
-      alert("⚠️ Please check your details: your name, a valid email / phone / @Telegram username, and an offer up to $1,000,000.");
+      alert("⚠️ Please check your details: your name, a valid email / phone / @Telegram username, and an offer between this username's minimum and $1,000,000.");
     } else {
       alert("⚠️ Could not send your offer at this time. Please try contacting us directly via Telegram.");
     }

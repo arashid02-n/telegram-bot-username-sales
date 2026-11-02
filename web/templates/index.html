@@ -111,7 +111,7 @@
               <a href="https://t.me/{{ bot.username }}?start=website" target="_blank" rel="noopener" class="btn-telegram">
                 💬 Make Offer on Telegram
               </a>
-              <button type="button" class="btn-webform-link" onclick="openOfferModal('{{ bot.username }}')">
+              <button type="button" class="btn-webform-link" onclick="openOfferModal('{{ bot.username }}', {{ bot.min_bid }})">
                 or submit via Web Form
               </button>
             </div>
@@ -242,19 +242,19 @@
 
         <div class="form-group">
           <label for="bidAmount">Your offer (USD or USDT)</label>
-          <!-- min="100" prevents negative numbers and sets a minimum realistic bid! -->
+          <!-- min/placeholder are set per listing by openOfferModal() (its min_bid) -->
           <input 
             type="number" 
             id="bidAmount" 
             name="bid" 
             required 
             placeholder="e.g., 1500" 
-            min="100" 
+            min="1" 
             max="1000000"
             step="1"
-            title="Offers must be a positive number of at least $100."
+            title="Offers must be a whole number of at least the listing's minimum."
           />
-          <span class="error-msg">Bid must be a positive amount (Minimum $100) with no decimals.</span>
+          <span class="error-msg">Offer must be at least this username's minimum, with no decimals.</span>
         </div>
 
         <div class="form-group">

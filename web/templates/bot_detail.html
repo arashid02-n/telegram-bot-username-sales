@@ -105,7 +105,7 @@
             <a href="{{ telegram_cta }}" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; max-width: 400px; font-size: 1.1rem; padding: 1rem; text-align: center;">
                 💬 Make Offer via Telegram
             </a>
-            <button type="button" class="btn-webform-link" onclick="openOfferModal('{{ bot.handle }}')">
+            <button type="button" class="btn-webform-link" onclick="openOfferModal('{{ bot.handle }}', {{ bot.min_bid }})">
                 or submit via Web Form
             </button>
         </div>
@@ -143,8 +143,8 @@
         </div>
         <div class="form-group">
           <label for="bidAmount">Offer Amount (USD / USDT)</label>
-          <input type="number" id="bidAmount" name="bid" required placeholder="e.g., {{ bot.min_bid }}" min="100" max="1000000" step="1" />
-          <span class="error-msg">Bid must be a positive amount (Minimum $100) without decimals.</span>
+          <input type="number" id="bidAmount" name="bid" required placeholder="e.g., {{ bot.min_bid }}" min="{{ bot.min_bid }}" max="1000000" step="1" />
+          <span class="error-msg">Offer must be at least ${{ bot.min_bid }}, with no decimals.</span>
         </div>
         <div class="form-group">
           <label for="buyerNotes">Additional Notes (Optional)</label>
