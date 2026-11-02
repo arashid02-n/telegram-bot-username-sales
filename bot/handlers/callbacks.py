@@ -13,7 +13,7 @@ router = Router()
 @router.callback_query(F.data.startswith("asset_info:"))
 async def cb_asset_info(callback: CallbackQuery) -> None:
     source = callback.data.split(":")[1]
-    bot_username = (await callback.bot.get_me()).username
+    bot_username = (await callback.bot.me()).username
     
     text = (
         "ℹ️ <b>Username Information</b>\n\n"
@@ -39,7 +39,7 @@ async def cb_asset_info(callback: CallbackQuery) -> None:
 @router.callback_query(F.data.startswith("back:"))
 async def cb_back_routing(callback: CallbackQuery) -> None:
     source = callback.data.split(":")[1]
-    bot_user = await callback.bot.get_me()
+    bot_user = await callback.bot.me()
     
     if source == "start":
         text = (
@@ -97,7 +97,7 @@ async def cb_back_routing(callback: CallbackQuery) -> None:
 async def cb_explore_ids(callback: CallbackQuery) -> None:
     # Extracts the source tag, safely defaulting to "start" for old buttons
     source = callback.data.split(":")[1] if ":" in callback.data else "start"
-    bot_user = await callback.bot.get_me()
+    bot_user = await callback.bot.me()
     text = (
         "🌐 <b>Other Available Usernames</b>\n\n"
         "Browse our portfolio of usernames open for acquisition:"
@@ -115,7 +115,7 @@ async def catch_all_messages(message: Message, state: FSMContext) -> None:
     if current_state is not None:
         return 
 
-    bot_username = (await message.bot.get_me()).username
+    bot_username = (await message.bot.me()).username
     past_bid = get_user_bid(bot_username, message.from_user.id)
     
     if past_bid:

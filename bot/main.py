@@ -56,7 +56,7 @@ async def run_bots() -> None:
     logger.info("Fetching bot usernames for the portfolio...")
     for bot in bots:
         try:
-            me = await bot.get_me()
+            me = await bot.me()
             PORTFOLIO_IDS.append(f"@{me.username}")
             logger.info("Added @%s to portfolio.", me.username)
         except Exception as exc:

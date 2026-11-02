@@ -14,7 +14,7 @@ router = Router()
 
 @router.callback_query(F.data == "make_offer")
 async def cb_make_offer(callback: CallbackQuery, state: FSMContext) -> None:
-    bot_username = (await callback.bot.get_me()).username
+    bot_username = (await callback.bot.me()).username
     await callback.message.answer("Enter your offer in USD (e.g., 750):")
     await state.set_state(BidStates.waiting_for_bid)
     await callback.answer()
@@ -32,7 +32,7 @@ async def process_bid_amount(message: Message, state: FSMContext) -> None:
         await message.answer("⚠️ Enter a valid number in USD (e.g. 750 or 12.50).")
         return
 
-    bot_username = (await message.bot.get_me()).username
+    bot_username = (await message.bot.me()).username
     past_bid = get_user_bid(bot_username, message.from_user.id)
     if past_bid:
         _, existing_contact, _ = past_bid

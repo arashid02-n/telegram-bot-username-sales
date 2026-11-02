@@ -37,7 +37,7 @@ async def admin_to_buyer_proxy(message: Message) -> None:
     if message.from_user.is_bot:
         return # Ignore bot notifications
 
-    bot_username = (await message.bot.get_me()).username
+    bot_username = (await message.bot.me()).username
     buyer_chat_id = get_buyer_for_topic(bot_username, message.message_thread_id)
 
     if buyer_chat_id:
@@ -54,7 +54,7 @@ async def admin_to_buyer_proxy(message: Message) -> None:
 @router.callback_query(F.data.startswith("admin_negotiate_"))
 async def cb_start_negotiation(callback: CallbackQuery) -> None:
     buyer_chat_id = int(callback.data.split("_")[2])
-    bot_username = (await callback.bot.get_me()).username
+    bot_username = (await callback.bot.me()).username
     buyer_name = get_buyer_username(buyer_chat_id)
 
     # Fetch and format the offer amount for the Topic Title
@@ -113,7 +113,7 @@ async def cb_start_negotiation(callback: CallbackQuery) -> None:
 @router.callback_query(F.data.startswith("admin_endnego_"))
 async def cb_end_negotiation(callback: CallbackQuery) -> None:
     buyer_chat_id = int(callback.data.split("_")[2])
-    bot_username = (await callback.bot.get_me()).username
+    bot_username = (await callback.bot.me()).username
 
     # 1. Update SQLite Status
     close_negotiation(bot_username, buyer_chat_id)

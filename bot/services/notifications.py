@@ -8,7 +8,7 @@ from keyboards import admin_chat_keyboard
 
 
 async def finalize_and_notify(bot, user, bid_amount, contact_info, edit_msg_id=None):
-    bot_user = await bot.get_me()
+    bot_user = await bot.me()
     buyer_username = user.username or "N/A"
     
     # 1. Update/Save to Database
