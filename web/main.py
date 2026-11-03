@@ -1,4 +1,5 @@
 import os
+import re
 import html
 import json
 import logging
@@ -28,6 +29,18 @@ templates = Jinja2Templates(directory="templates")
 # sitemap entry and robots.txt line must use this exact address.
 SITE_URL = os.getenv("SITE_URL", "https://www.buytelegrambots.com").rstrip("/")
 templates.env.globals["SITE_URL"] = SITE_URL   # usable as {{ SITE_URL }} in every template
+
+# --- PostHog analytics (F11a) ----------------------------------------------
+# Only active when POSTHOG_KEY (the public "phc_..." project token) is set in
+# web/.env. Without it no PostHog code is printed and /ingest returns 404.
+# The browser sends everything to /ingest on our own domain and we forward it
+# to PostHog, so ad blockers don't drop it (a "reverse proxy").
+POSTHOG_KEY = os.getenv("POSTHOG_KEY", "").strip()
+POSTHOG_HOST = os.getenv("POSTHOG_HOST", "https://us.i.posthog.com").rstrip("/")
+POSTHOG_ASSETS_HOST = os.getenv("POSTHOG_ASSETS_HOST", "https://us-assets.i.posthog.com").rstrip("/")
+POSTHOG_MAX_BODY = 5 * 1024 * 1024      # events are small; refuse anything bigger
+_INGEST_PATH = re.compile(r"^[A-Za-z0-9_\-./]{1,200}$")
+templates.env.globals["POSTHOG_KEY"] = POSTHOG_KEY
 
 # The ONLY folder whose files visitors may download (styles.css, script.js, ...).
 # Everything else in web/ (.env, main.py, templates, ...) stays private.
@@ -250,6 +263,7 @@ async def handle_form_submission(form_data: FormSubmission, request: Request):
 async def robots_txt():
     content = f"""User-agent: *
 Allow: /
+Disallow: /ingest/
 Sitemap: {SITE_URL}/sitemap.xml
 """
     return Response(content=content, media_type="text/plain")
@@ -288,6 +302,39 @@ def load_catalog() -> list[dict]:
     for bot in bots:  # the web form opened from a card uses that listing's minimum
         bot["min_bid"] = minimums.get(bot["username"].lower(), 1)
     return bots
+
+
+@app.api_route("/ingest/{path:path}", methods=["GET", "POST", "HEAD"])
+async def posthog_proxy(request: Request, path: str):
+    """Forward analytics requests from the browser to PostHog (US cloud).
+
+    PostHog's own files (static/..., array/...) come from its assets host,
+    everything else (events, flags) goes to its API host. Only these two
+    PostHog hosts can ever be reached, so this is not an open proxy.
+    """
+    if not POSTHOG_KEY or not _INGEST_PATH.match(path) or ".." in path:
+        raise HTTPException(status_code=404, detail="Not Found")
+    body = await request.body()
+    if len(body) > POSTHOG_MAX_BODY:
+        raise HTTPException(status_code=413, detail="Too large")
+
+    host = POSTHOG_ASSETS_HOST if path.startswith(("static/", "array/")) else POSTHOG_HOST
+    url = f"{host}/{path}"
+    headers = {k: v for k, v in request.headers.items()
+               if k.lower() in ("content-type", "content-encoding", "user-agent", "accept")}
+    # The visitor's real IP (Cloudflare header), so PostHog can tell the country.
+    headers["X-Forwarded-For"] = client_ip(request)
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            upstream = await client.request(request.method, url, params=request.query_params,
+                                            content=body, headers=headers)
+    except httpx.RequestError as exc:
+        logging.warning(f"PostHog proxy: could not reach {host}: {exc}")
+        raise HTTPException(status_code=502, detail="Analytics unavailable")
+
+    keep = {k: v for k, v in upstream.headers.items()
+            if k.lower() in ("content-type", "cache-control", "etag", "last-modified")}
+    return Response(content=upstream.content, status_code=upstream.status_code, headers=keep)
 
 
 # Homepage. The cards are written into the HTML here on the server (not built

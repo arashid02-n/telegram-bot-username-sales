@@ -268,6 +268,7 @@ Templates
 templates/index.html        # homepage
 templates/bot_detail.html   # landing pages
 templates/404.html
+templates/_posthog.html     # PostHog scripts, included in every page head
 ```
 
 Changing template files updates page layout.
@@ -285,10 +286,30 @@ Static Assets (public, in `web/static/`)
 ```
 static/styles.css
 static/script.js
+static/analytics.js   # PostHog setup (only used when POSTHOG_KEY is set)
 static/favicon.png
 ```
 
 Restart service after modification.
+
+---
+
+web/.env (analytics)
+
+Purpose
+
+Optional PostHog analytics. `POSTHOG_KEY=phc_...` turns it on; `POSTHOG_HOST` defaults to `https://us.i.posthog.com` (US cloud). Without `POSTHOG_KEY` the site sends nothing to PostHog. Add the lines with an empty line first, because the file may not end with a newline:
+
+```
+echo >> web/.env
+echo "POSTHOG_KEY=phc_..." >> web/.env
+```
+
+Requires
+
+```
+systemctl restart buytelegrambots-web
+```
 
 ---
 
