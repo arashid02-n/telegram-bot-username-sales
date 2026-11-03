@@ -1,0 +1,7 @@
+{#- PostHog analytics (F11a). Printed only when POSTHOG_KEY is set in web/.env.
+    Both scripts go through /ingest on our own domain (see main.py), so ad
+    blockers don't drop them. analytics.js reads the key from data-key. -#}
+{% if POSTHOG_KEY %}
+<script src="/ingest/static/array.js" defer></script>
+<script src="/analytics.js" data-key="{{ POSTHOG_KEY }}" defer></script>
+{% endif %}
